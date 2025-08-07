@@ -19,17 +19,20 @@ public class UserController {
         return "Hello World";
     }
 
-    @PostMapping
+    @PostMapping("/register")
     public void addNewUser(@RequestBody User user) {
         userService.addNewUser(user);
     }
 
+    @PostMapping("/login")
+    public void login(@RequestBody LoginRequest request ) {
+        userService.login(request.getEmail(), request.getPassword());
+    }
+
     @PutMapping(path = "{userId}")
     public void updateUser(@PathVariable("userId") Long userId,
-                           @RequestParam(required = false) String email,
-                           @RequestParam(required = false) String name,
-                           @RequestParam(required = false) String password) {
-        userService.updateUser(userId, email, name, password);
+                           @RequestBody UpdateUserRequest request) {
+        userService.updateUser(userId, request);
     }
 
 }
