@@ -1,4 +1,4 @@
-package com.andy.recallify;
+package com.andy.recallify.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.andy.recallify.JwtUtil;
+import com.andy.recallify.security.JwtUtil;
 
 import java.util.Map;
 
@@ -44,5 +44,4 @@ public class UserController {
                            @RequestBody UpdateUserRequest request) {
         userService.updateUser(userId, request);
     }
-
 }
