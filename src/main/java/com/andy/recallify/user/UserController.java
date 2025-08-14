@@ -1,7 +1,12 @@
 package com.andy.recallify.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.andy.recallify.JwtUtil;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "api/user")
@@ -9,14 +14,12 @@ public class UserController {
 
     private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final JwtUtil jwtUtil;
 
-    @GetMapping
-    public String getUsers() {
-        return "Hello World";
+    @Autowired
+    public UserController(UserService userService, JwtUtil jwtUtil) {
+        this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
@@ -25,8 +28,15 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody LoginRequest request ) {
-        userService.login(request.getEmail(), request.getPassword());
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            userService.login(request.getEmail(), request.getPassword());
+            String token = jwtUtil.generateToken(request.getEmail());
+
+            return ResponseEntity.ok().body(Map.of("token", token));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 
     @PutMapping(path = "{userId}")

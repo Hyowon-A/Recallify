@@ -1,5 +1,6 @@
 package com.andy.recallify.user;
 
+import com.andy.recallify.JwtUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ public class UserService {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            if (!encoder.matches(password, user.getPassword())) {
+            if (!matches(password, user.getPassword())) {
                 throw new IllegalArgumentException("Wrong password");
             }
         } else {
