@@ -1,21 +1,14 @@
 package com.andy.recallify.user;
 
-
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "users")
 public class User {
-    @Id
-    @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName = "user_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_sequence"
-    )
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String email;
@@ -23,6 +16,10 @@ public class User {
     private String password; // stored as hashed
 
     private String name;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Timestamp createdAt;
 
     public Long getId() {
         return id;
@@ -40,8 +37,8 @@ public class User {
         return name;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
     public void setEmail(String email) {
@@ -63,6 +60,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }
