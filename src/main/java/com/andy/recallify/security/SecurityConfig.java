@@ -25,7 +25,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/login", "/api/user/register", "/api/mcqs/**", "/api/upload/**" ).permitAll()
+                        .requestMatchers("/api/user/login", "/api/user/register", "/api/mcq/**", "/api/upload/**" ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
