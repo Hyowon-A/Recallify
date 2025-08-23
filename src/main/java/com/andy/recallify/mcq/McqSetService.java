@@ -20,6 +20,9 @@ public class McqSetService {
     public void createSet(McqSet mcqSet, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (mcqSetRepository.existsByTitleAndUser(mcqSet.getTitle(), user)) {
+            throw new IllegalArgumentException("You already have a set with this title.");
+        }
         mcqSet.setUser(user);
         mcqSetRepository.save(mcqSet);
     }
