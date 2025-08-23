@@ -1,4 +1,4 @@
-package com.andy.recallify.gemini;
+package com.andy.recallify.generation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/mcqs")
+@RequestMapping("/ai/")
 public class GeminiController {
 
     private final GeminiService geminiService;
@@ -16,7 +16,7 @@ public class GeminiController {
         this.geminiService = geminiService;
     }
 
-    @PostMapping("/generate")
+    @PostMapping("/generateMcqs")
     public ResponseEntity<?> generateMcqs(@RequestBody Map<String, String> request) {
         String inputText = request.get("text");
         if (inputText == null || inputText.isBlank()) {

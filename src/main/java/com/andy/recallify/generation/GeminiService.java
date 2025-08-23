@@ -1,4 +1,4 @@
-package com.andy.recallify.gemini;
+package com.andy.recallify.generation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
