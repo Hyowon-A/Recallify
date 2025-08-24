@@ -50,4 +50,14 @@ public class McqSetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/public")
+    public ResponseEntity<?> getPublicMcqSets() {
+        try {
+            List<McqSetListInfoDto> publicSets = mcqSetService.getPublicMcqSets();
+            return ResponseEntity.ok(publicSets);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
 }

@@ -45,5 +45,17 @@ public class McqSetService {
                 .toList();
     }
 
+    public List<McqSetListInfoDto> getPublicMcqSets() {
+        List<McqSet> sets = mcqSetRepository.findAllByIsPublicTrue();
+
+        return sets.stream()
+                .map(set -> new McqSetListInfoDto(
+                        set.getId(),
+                        set.getTitle(),
+                        set.isPublic(),
+                        set.getMcqs().size()
+                ))
+                .toList();
+    }
 
 }
