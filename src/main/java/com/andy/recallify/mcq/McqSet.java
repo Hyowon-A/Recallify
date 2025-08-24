@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "mcq_sets")
@@ -23,6 +25,17 @@ public class McqSet {
     @CreationTimestamp
     @Column(updatable = false)
     private Timestamp createdAt;
+
+    @OneToMany(mappedBy = "mcqSet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Mcq> mcqs = new ArrayList<>();
+
+    public List<Mcq> getMcqs() {
+        return mcqs;
+    }
+
+    public void setMcqs(List<Mcq> mcqs) {
+        this.mcqs = mcqs;
+    }
 
     public long getId() {
         return id;

@@ -5,6 +5,8 @@ import com.andy.recallify.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class McqSetService {
 
@@ -26,5 +28,22 @@ public class McqSetService {
         mcqSet.setUser(user);
         mcqSetRepository.save(mcqSet);
     }
+
+    public List<McqSetListInfoDto> getMyMcqSets(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        List<McqSet> sets = mcqSetRepository.findAllByUser(user);
+
+        return sets.stream()
+                .map(set -> new McqSetListInfoDto(
+                        set.getId(),
+                        set.getTitle(),
+                        set.isPublic(),
+                        set.getMcqs().size()
+                ))
+                .toList();
+    }
+
 
 }

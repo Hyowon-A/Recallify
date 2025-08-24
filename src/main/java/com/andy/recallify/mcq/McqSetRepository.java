@@ -13,4 +13,6 @@ public interface McqSetRepository extends JpaRepository<McqSet, Long> {
     List<McqSet> findAllByIsPublicTrue();
 
     boolean existsByTitleAndUser(String title, User user);
+
+    List<McqSet> findAllByUser(User user);
 }
