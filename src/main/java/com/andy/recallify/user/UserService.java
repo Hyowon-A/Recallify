@@ -27,22 +27,24 @@ public class UserService {
         return encoder.matches(plainPassword, hashedPassword);
     }
 
-    public void addNewUser(User user) {
+    public User addNewUser(User user) {
         Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
         if (userOptional.isPresent()) {
             throw new IllegalArgumentException("User already exists");
         }
         user.setPassword(hashPassword(user.getPassword()));
         userRepository.save(user);
+        return user;
     }
 
-    public void login(String email, String password) {
+    public User login(String email, String password) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             if (!matches(password, user.getPassword())) {
                 throw new IllegalArgumentException("Wrong password");
             }
+            return user;
         } else {
             throw new IllegalArgumentException("User not found");
         }

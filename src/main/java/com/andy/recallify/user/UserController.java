@@ -23,19 +23,39 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public void addNewUser(@RequestBody User user) {
-        userService.addNewUser(user);
+    public ResponseEntity<?> addNewUser(@RequestBody User user) {
+        try {
+            User registered = userService.addNewUser(user);
+            String token = jwtUtil.generateToken(registered.getEmail());
+
+            return ResponseEntity.ok().body(Map.of(
+                    "token", token,
+                    "name", registered.getName(),
+                    "email", registered.getEmail()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of("error", e.getMessage())
+            );
+        }
+
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
-            userService.login(request.getEmail(), request.getPassword());
+            User user = userService.login(request.getEmail(), request.getPassword());
             String token = jwtUtil.generateToken(request.getEmail());
 
-            return ResponseEntity.ok().body(Map.of("token", token));
+            return ResponseEntity.ok().body(Map.of(
+                    "token", token,
+                    "name", user.getName(),
+                    "email", user.getEmail()
+            ));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of("error", e.getMessage())
+            );
         }
     }
 
