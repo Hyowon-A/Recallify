@@ -19,12 +19,13 @@ public class GeminiController {
     @PostMapping("/generateMcqs")
     public ResponseEntity<?> generateMcqs(@RequestBody Map<String, String> request) {
         String inputText = request.get("text");
+        Long count = Long.parseLong(request.get("count"));
         if (inputText == null || inputText.isBlank()) {
             return ResponseEntity.badRequest().body("Input text is required");
         }
 
         try {
-            String jsonMcqs = geminiService.generateMcqs(inputText);
+            String jsonMcqs = geminiService.generateMcqs(inputText, count);
             return ResponseEntity.ok(Map.of("mcqs", jsonMcqs));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to generate MCQs: " + e.getMessage());

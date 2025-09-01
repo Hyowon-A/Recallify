@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path="api/mcqSet")
@@ -24,15 +25,17 @@ public class McqSetController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createMcqSet(
-            @RequestBody McqSet mcqSet,
+            @RequestBody String mcqSetTitle,
             @RequestHeader("Authorization") String authHeader
     ) {
         try {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            mcqSetService.createSet(mcqSet, email);
-            return ResponseEntity.ok("Set created successfully");
+            Long setId = mcqSetService.createSet(mcqSetTitle, email);
+            return ResponseEntity.ok().body(Map.of(
+                    "id", setId
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }

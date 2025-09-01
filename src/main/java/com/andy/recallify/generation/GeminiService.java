@@ -16,7 +16,7 @@ public class GeminiService {
     private static final String API_KEY = dotenv.get("GEMINI_API_KEY");
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + API_KEY;
 
-    public String generateMcqs(String inputText) throws Exception {
+    public String generateMcqs(String inputText, Long count) throws Exception {
         URL url = new URL(API_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -32,7 +32,7 @@ public class GeminiService {
 
                 %s
 
-                Generate 5 high-quality MCQs.
+                Generate %d high-quality MCQs.
 
                 Each question must follow this exact JSON format:
 
@@ -58,7 +58,7 @@ public class GeminiService {
 
                 Do not add anything outside the JSON.
                 Output only the JSON array.
-                """.formatted(inputText);
+                """.formatted(inputText, count);
 
         // Gemini HTTP body
         Map<String, Object> requestBody = Map.of(
