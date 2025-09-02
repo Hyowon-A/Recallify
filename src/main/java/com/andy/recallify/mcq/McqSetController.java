@@ -73,4 +73,14 @@ public class McqSetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/delete/{setId}")
+    public ResponseEntity<?> deleteMcqSet(@PathVariable Long setId) {
+        try {
+            mcqSetService.deleteMcqSetById(setId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+        return ResponseEntity.ok().build();
+    }
 }

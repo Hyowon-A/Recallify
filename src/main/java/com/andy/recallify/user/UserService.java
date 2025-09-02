@@ -30,7 +30,7 @@ public class UserService {
     public User addNewUser(User user) {
         Optional<User> userOptional = userRepository.findByEmail(user.getEmail());
         if (userOptional.isPresent()) {
-            throw new IllegalArgumentException("User already exists");
+            throw new IllegalArgumentException("Email already in use");
         }
         user.setPassword(hashPassword(user.getPassword()));
         userRepository.save(user);

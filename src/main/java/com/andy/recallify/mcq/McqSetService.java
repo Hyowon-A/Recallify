@@ -74,4 +74,8 @@ public class McqSetService {
         );
     }
 
+    public void deleteMcqSetById(Long id) {
+        mcqSetRepository.deleteById(id);
+    }
+
 }
