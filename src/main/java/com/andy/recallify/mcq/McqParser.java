@@ -11,7 +11,7 @@ import java.util.List;
 public class McqParser {
     public List<Mcq> parse(String rawJson, McqSet mcqSet) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        List<McqDto> dtos = mapper.readValue(rawJson, new TypeReference<>() {});
+        List<Mcq> dtos = mapper.readValue(rawJson, new TypeReference<>() {});
         return dtos.stream()
                 .map(dto -> {
                     Mcq mcq = new Mcq();

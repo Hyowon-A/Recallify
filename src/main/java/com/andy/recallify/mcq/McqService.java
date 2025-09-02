@@ -38,4 +38,21 @@ public class McqService {
 
         mcqRepository.saveAll(mcqs);
     }
+
+    public List<McqDto> getMcqs(Long setId) {
+        return mcqRepository.findByMcqSetId(setId).stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    private McqDto toDto(Mcq m) {
+        int ans = m.getAnswer(); // 1..4
+        List<OptionDto> options = List.of(
+                new OptionDto("A", m.getOption1(), ans == 1, m.getExplanation1()),
+                new OptionDto("B", m.getOption2(), ans == 2, m.getExplanation2()),
+                new OptionDto("C", m.getOption3(), ans == 3, m.getExplanation3()),
+                new OptionDto("D", m.getOption4(), ans == 4, m.getExplanation4())
+        );
+        return new McqDto(m.getId(), m.getQuestion(), "", options);
+    }
 }

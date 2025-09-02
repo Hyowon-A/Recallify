@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,4 +37,15 @@ public class McqController {
             return ResponseEntity.internalServerError().body("Failed to generate MCQs: " + e.getMessage());
         }
     }
+
+    @GetMapping("/get/{setId}")
+    public ResponseEntity<?> getMcqs(@PathVariable Long setId) {
+        try {
+            List<McqDto> mcqs = mcqService.getMcqs(setId);
+            return ResponseEntity.ok(mcqs);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to get MCQs: " + e.getMessage());
+        }
+    }
+
 }
