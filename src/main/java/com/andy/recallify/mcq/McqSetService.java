@@ -61,4 +61,17 @@ public class McqSetService {
                 .toList();
     }
 
+    public McqSetDto getMcqSetById(Long id) {
+        McqSet set = mcqSetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("MCQ Set not found: " + id));
+
+        // map entity → DTO
+        return new McqSetDto(
+                set.getId(),
+                set.getTitle(),
+                set.isPublic(),
+                set.getMcqs() != null ? set.getMcqs().size() : 0
+        );
+    }
+
 }

@@ -63,4 +63,14 @@ public class McqSetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/meta/{setId}")
+    public ResponseEntity<?> getSetMetadata(@PathVariable Long setId) {
+        try {
+            McqSetDto meta = mcqSetService.getMcqSetById(setId);
+            return ResponseEntity.ok(meta);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
 }

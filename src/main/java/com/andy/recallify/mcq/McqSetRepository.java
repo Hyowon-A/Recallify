@@ -8,7 +8,7 @@ import com.andy.recallify.user.User;
 
 public interface McqSetRepository extends JpaRepository<McqSet, Long> {
 
-    Optional<McqSet> findByTitle(String title);
+    Optional<McqSet> findById(Long id);
 
     List<McqSet> findAllByIsPublicTrue();
 
