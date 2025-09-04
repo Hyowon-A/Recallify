@@ -1,7 +1,14 @@
-package com.andy.recallify.mcq;
+package com.andy.recallify.mcq.service;
 
 import com.andy.recallify.generation.GeminiService;
 import com.andy.recallify.generation.PdfUploadService;
+import com.andy.recallify.mcq.Mcq;
+import com.andy.recallify.mcq.McqSet;
+import com.andy.recallify.mcq.dto.McqDto;
+import com.andy.recallify.mcq.dto.McqParser;
+import com.andy.recallify.mcq.dto.OptionDto;
+import com.andy.recallify.mcq.repository.McqRepository;
+import com.andy.recallify.mcq.repository.McqSetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

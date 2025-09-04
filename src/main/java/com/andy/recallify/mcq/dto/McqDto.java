@@ -1,4 +1,4 @@
-package com.andy.recallify.mcq;
+package com.andy.recallify.mcq.dto;
 
 import java.util.List;
 

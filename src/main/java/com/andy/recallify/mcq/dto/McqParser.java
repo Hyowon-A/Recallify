@@ -1,5 +1,7 @@
-package com.andy.recallify.mcq;
+package com.andy.recallify.mcq.dto;
 
+import com.andy.recallify.mcq.Mcq;
+import com.andy.recallify.mcq.McqSet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

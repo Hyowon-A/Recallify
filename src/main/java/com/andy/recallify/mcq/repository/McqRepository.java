@@ -1,5 +1,6 @@
-package com.andy.recallify.mcq;
+package com.andy.recallify.mcq.repository;
 
+import com.andy.recallify.mcq.Mcq;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

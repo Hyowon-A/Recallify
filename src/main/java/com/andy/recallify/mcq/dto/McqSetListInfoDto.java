@@ -1,4 +1,4 @@
-package com.andy.recallify.mcq;
+package com.andy.recallify.mcq.dto;
 
 public class McqSetListInfoDto {
     private final Long id;

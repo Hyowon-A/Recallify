@@ -1,7 +1,7 @@
-package com.andy.recallify.mcq;
+package com.andy.recallify.mcq.controller;
 
-import com.andy.recallify.generation.GeminiService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.andy.recallify.mcq.service.McqService;
+import com.andy.recallify.mcq.dto.McqDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
