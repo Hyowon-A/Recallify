@@ -2,7 +2,6 @@ package com.andy.recallify.mcq.service;
 
 import com.andy.recallify.mcq.McqSet;
 import com.andy.recallify.mcq.dto.McqSetDto;
-import com.andy.recallify.mcq.dto.McqSetListInfoDto;
 import com.andy.recallify.mcq.repository.McqSetRepository;
 import com.andy.recallify.user.User;
 import com.andy.recallify.user.UserRepository;
@@ -23,7 +22,7 @@ public class McqSetService {
         this.userRepository = userRepository;
     }
 
-    public Long createSet(String mcqSetTitle, String email) {
+    public Long createSet(String mcqSetTitle, boolean isPublic, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (mcqSetRepository.existsByTitleAndUser(mcqSetTitle, user)) {
@@ -32,18 +31,19 @@ public class McqSetService {
         McqSet mcqSet = new McqSet();
         mcqSet.setUser(user);
         mcqSet.setTitle(mcqSetTitle);
+        mcqSet.setPublic(isPublic);
         mcqSetRepository.save(mcqSet);
         return mcqSet.getId();
     }
 
-    public List<McqSetListInfoDto> getMyMcqSets(String email) {
+    public List<McqSetDto> getMyMcqSets(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<McqSet> sets = mcqSetRepository.findAllByUser(user);
 
         return sets.stream()
-                .map(set -> new McqSetListInfoDto(
+                .map(set -> new McqSetDto(
                         set.getId(),
                         set.getTitle(),
                         set.isPublic(),
@@ -52,11 +52,11 @@ public class McqSetService {
                 .toList();
     }
 
-    public List<McqSetListInfoDto> getPublicMcqSets() {
+    public List<McqSetDto> getPublicMcqSets() {
         List<McqSet> sets = mcqSetRepository.findAllByIsPublicTrue();
 
         return sets.stream()
-                .map(set -> new McqSetListInfoDto(
+                .map(set -> new McqSetDto(
                         set.getId(),
                         set.getTitle(),
                         set.isPublic(),

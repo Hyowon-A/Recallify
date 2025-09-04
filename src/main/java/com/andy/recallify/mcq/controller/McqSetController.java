@@ -2,7 +2,6 @@ package com.andy.recallify.mcq.controller;
 
 import com.andy.recallify.mcq.service.McqSetService;
 import com.andy.recallify.mcq.dto.McqSetDto;
-import com.andy.recallify.mcq.dto.McqSetListInfoDto;
 import com.andy.recallify.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,14 +27,14 @@ public class McqSetController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createMcqSet(
-            @RequestBody String mcqSetTitle,
+            @RequestBody McqSetDto mcqSetDto,
             @RequestHeader("Authorization") String authHeader
     ) {
         try {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            Long setId = mcqSetService.createSet(mcqSetTitle, email);
+            Long setId = mcqSetService.createSet(mcqSetDto.title(), mcqSetDto.isPublic(), email);
             return ResponseEntity.ok().body(Map.of(
                     "id", setId
             ));
@@ -50,7 +49,7 @@ public class McqSetController {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            List<McqSetListInfoDto> summaries = mcqSetService.getMyMcqSets(email);
+            List<McqSetDto> summaries = mcqSetService.getMyMcqSets(email);
             return ResponseEntity.ok(summaries);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
@@ -60,7 +59,7 @@ public class McqSetController {
     @GetMapping("/public")
     public ResponseEntity<?> getPublicMcqSets() {
         try {
-            List<McqSetListInfoDto> publicSets = mcqSetService.getPublicMcqSets();
+            List<McqSetDto> publicSets = mcqSetService.getPublicMcqSets();
             return ResponseEntity.ok(publicSets);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
