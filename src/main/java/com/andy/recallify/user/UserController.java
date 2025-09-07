@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.andy.recallify.security.JwtUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -58,9 +59,29 @@ public class UserController {
         }
     }
 
-    @PutMapping(path = "{userId}")
-    public void updateUser(@PathVariable("userId") Long userId,
-                           @RequestBody UpdateUserRequest request) {
-        userService.updateUser(userId, request);
+    @PutMapping("/edit")
+    public ResponseEntity<?> updateUser(
+            @RequestBody UpdateUserRequest updateUserRequest,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String email = jwtUtil.extractEmail(token);
+
+            User updatedUser = userService.updateUser(email, updateUserRequest);
+
+            String updatedToken = jwtUtil.generateToken(updatedUser.getEmail());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("name", updatedUser.getName());
+            response.put("email", updatedUser.getEmail());
+            response.put("token", updatedToken);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }

@@ -51,25 +51,35 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(Long userId, UpdateUserRequest request) {
-        User user = userRepository.findById(userId)
+    public User updateUser(String email, UpdateUserRequest request) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-                throw new IllegalArgumentException("User already exists");
+        if (request.email() != null && !request.email().trim().isEmpty()) {
+            String newEmail = request.email().trim();
+            if (!newEmail.equals(user.getEmail()) && userRepository.findByEmail(newEmail).isPresent()) {
+                throw new IllegalArgumentException("Email is already registered.");
             }
-            user.setEmail(request.getEmail().trim());
+            user.setEmail(newEmail);
         }
 
-        if (request.getName() != null && !request.getName().trim().isEmpty()) {
-            user.setName(request.getName().trim());
+        if (request.name() != null && !request.name().trim().isEmpty()) {
+            user.setName(request.name().trim());
         }
 
-        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
-            user.setPassword(hashPassword(request.getPassword().trim()));
-        }
+        if (request.newPassword() != null && !request.newPassword().trim().isEmpty()) {
+            if (request.currentPassword() == null || request.currentPassword().trim().isEmpty()) {
+                throw new IllegalArgumentException("Current password is required to change password.");
+            }
 
+            if (!matches(request.currentPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("Incorrect current password.");
+            }
+
+            user.setPassword(hashPassword(request.newPassword().trim()));
+        }
         userRepository.save(user);
+        return user;
     }
+
 }
