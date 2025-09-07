@@ -1,6 +1,5 @@
 package com.andy.recallify.mcq;
 
-
 import com.andy.recallify.user.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "mcq_scores")
+@Table(name = "scores")
 public class McqScore {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,8 +18,8 @@ public class McqScore {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "mcq_set_id", nullable = false)
-    private McqSet mcqSet;
+    @JoinColumn(name = "set_id", nullable = false)
+    private Set set;
 
     private int score;
 
@@ -48,12 +47,12 @@ public class McqScore {
         this.user = user;
     }
 
-    public McqSet getMcqSet() {
-        return mcqSet;
+    public Set getSet() {
+        return set;
     }
 
-    public void setMcqSet(McqSet mcqSet) {
-        this.mcqSet = mcqSet;
+    public void setSet(Set set) {
+        this.set = set;
     }
 
     public int getScore() {

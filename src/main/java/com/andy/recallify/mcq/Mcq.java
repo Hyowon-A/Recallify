@@ -9,8 +9,8 @@ public class Mcq {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "mcq_set_id", nullable = false)
-    private McqSet mcqSet;
+    @JoinColumn(name = "set_id", nullable = false)
+    private Set set;
 
     private String question;
 
@@ -29,12 +29,12 @@ public class Mcq {
         return id;
     }
 
-    public McqSet getMcqSet() {
-        return mcqSet;
+    public Set getMcqSet() {
+        return set;
     }
 
-    public void setMcqSet(McqSet mcqSet) {
-        this.mcqSet = mcqSet;
+    public void setMcqSet(Set set) {
+        this.set = set;
     }
 
     public String getQuestion() {
@@ -121,7 +121,7 @@ public class Mcq {
     public String toString() {
         return "Mcq{" +
                 "id=" + id +
-                ", mcqSet=" + mcqSet +
+                ", mcqSet=" + set +
                 ", question='" + question + '\'' +
                 ", option1='" + option1 + '\'' +
                 ", explanation1='" + explanation1 + '\'' +

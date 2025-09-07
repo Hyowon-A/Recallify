@@ -1,19 +1,19 @@
 package com.andy.recallify.mcq.repository;
 
-import com.andy.recallify.mcq.McqSet;
+import com.andy.recallify.mcq.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 import com.andy.recallify.user.User;
 
-public interface McqSetRepository extends JpaRepository<McqSet, Long> {
+public interface SetRepository extends JpaRepository<Set, Long> {
 
-    Optional<McqSet> findById(Long id);
+    Optional<Set> findById(Long id);
 
-    List<McqSet> findAllByIsPublicTrue();
+    List<Set> findAllByIsPublicTrue();
 
     boolean existsByTitleAndUser(String title, User user);
 
-    List<McqSet> findAllByUser(User user);
+    List<Set> findAllByUser(User user);
 }

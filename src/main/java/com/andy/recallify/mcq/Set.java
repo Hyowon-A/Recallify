@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "mcq_sets")
-public class McqSet {
+@Table(name = "sets")
+public class Set {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
@@ -26,7 +26,7 @@ public class McqSet {
     @Column(updatable = false)
     private Timestamp createdAt;
 
-    @OneToMany(mappedBy = "mcqSet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Mcq> mcqs = new ArrayList<>();
 
     public List<Mcq> getMcqs() {

@@ -1,9 +1,8 @@
 package com.andy.recallify.mcq.controller;
 
 import com.andy.recallify.mcq.McqScore;
-import com.andy.recallify.mcq.dto.McqScoreDto;
-import com.andy.recallify.mcq.repository.McqScoreRepository;
-import com.andy.recallify.mcq.service.McqScoreService;
+import com.andy.recallify.mcq.dto.ScoreDto;
+import com.andy.recallify.mcq.service.ScoreService;
 import com.andy.recallify.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,25 +14,25 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping(path="api/mcqScore")
-public class McqScoreController {
+@RequestMapping(path="api/score")
+public class ScoreController {
     private final JwtUtil jwtUtil;
 
-    private final McqScoreService mcqScoreService;
+    private final ScoreService scoreService;
 
     @Autowired
-    public McqScoreController(JwtUtil jwtUtil, McqScoreService mcqScoreService) {
+    public ScoreController(JwtUtil jwtUtil, ScoreService scoreService) {
         this.jwtUtil = jwtUtil;
-        this.mcqScoreService = mcqScoreService;
+        this.scoreService = scoreService;
     }
 
     @PostMapping("/store")
-    public ResponseEntity<?> storeScore(@RequestBody McqScoreDto dto, @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> storeScore(@RequestBody ScoreDto dto, @RequestHeader("Authorization") String authHeader) {
         try {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            mcqScoreService.store(dto, email);
+            scoreService.store(dto, email);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
@@ -43,7 +42,7 @@ public class McqScoreController {
     @GetMapping("get/{setId}")
     public ResponseEntity<?> getScore(@PathVariable("setId") Long setId) {
         try {
-            List<McqScore> scores = mcqScoreService.getScoresById(setId);
+            List<McqScore> scores = scoreService.getScoresById(setId);
             List<Map<String, Serializable>> result = scores.stream()
                     .map(s -> Map.<String, Serializable>of(
                             "score", s.getScore(),

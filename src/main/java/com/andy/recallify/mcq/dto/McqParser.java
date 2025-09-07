@@ -1,7 +1,7 @@
 package com.andy.recallify.mcq.dto;
 
 import com.andy.recallify.mcq.Mcq;
-import com.andy.recallify.mcq.McqSet;
+import com.andy.recallify.mcq.Set;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,13 +11,13 @@ import java.util.List;
 
 @Component
 public class McqParser {
-    public List<Mcq> parse(String rawJson, McqSet mcqSet) throws JsonProcessingException {
+    public List<Mcq> parse(String rawJson, Set set) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         List<Mcq> dtos = mapper.readValue(rawJson, new TypeReference<>() {});
         return dtos.stream()
                 .map(dto -> {
                     Mcq mcq = new Mcq();
-                    mcq.setMcqSet(mcqSet);
+                    mcq.setMcqSet(set);
                     mcq.setQuestion(dto.getQuestion());
                     mcq.setOption1(dto.getOption1());
                     mcq.setExplanation1(dto.getExplanation1());
