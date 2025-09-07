@@ -1,5 +1,6 @@
 package com.andy.recallify.mcq.controller;
 
+import com.andy.recallify.mcq.dto.EditMcqSetRequest;
 import com.andy.recallify.mcq.service.McqSetService;
 import com.andy.recallify.mcq.dto.McqSetDto;
 import com.andy.recallify.security.JwtUtil;
@@ -84,5 +85,21 @@ public class McqSetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<?> updateMcqSet(
+            @RequestBody EditMcqSetRequest editMcqSetRequest,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String email = jwtUtil.extractEmail(token);
+
+            mcqSetService.editMcqSet(editMcqSetRequest);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
     }
 }

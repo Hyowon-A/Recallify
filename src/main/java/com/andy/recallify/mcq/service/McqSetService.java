@@ -1,10 +1,14 @@
 package com.andy.recallify.mcq.service;
 
 import com.andy.recallify.mcq.McqSet;
+import com.andy.recallify.mcq.dto.EditMcqSetRequest;
 import com.andy.recallify.mcq.dto.McqSetDto;
+import com.andy.recallify.mcq.repository.McqRepository;
 import com.andy.recallify.mcq.repository.McqSetRepository;
 import com.andy.recallify.user.User;
 import com.andy.recallify.user.UserRepository;
+import jakarta.transaction.TransactionScoped;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +19,13 @@ public class McqSetService {
 
     private final McqSetRepository mcqSetRepository;
     private final UserRepository userRepository;
+    private final McqRepository mcqRepository;
 
     @Autowired
-    public McqSetService(McqSetRepository mcqSetRepository, UserRepository userRepository) {
+    public McqSetService(McqSetRepository mcqSetRepository, UserRepository userRepository, McqRepository mcqRepository) {
         this.mcqSetRepository = mcqSetRepository;
         this.userRepository = userRepository;
+        this.mcqRepository = mcqRepository;
     }
 
     public Long createSet(String mcqSetTitle, boolean isPublic, String email) {
@@ -82,4 +88,24 @@ public class McqSetService {
         mcqSetRepository.deleteById(id);
     }
 
+    @Transactional
+    public void editMcqSet(EditMcqSetRequest req) {
+        McqSet set = mcqSetRepository.findById(req.setId())
+                .orElseThrow(() -> new IllegalArgumentException("Set not found"));
+
+        // Conditionally update only if value is provided
+        if (req.title() != null && !req.title().trim().isEmpty()) {
+            set.setTitle(req.title().trim());
+        }
+
+        if (req.isPublic() != null) {
+            set.setPublic(req.isPublic());
+        }
+
+        if (req.deletedIds() != null) {
+            for (Long qid : req.deletedIds()) {
+                mcqRepository.deleteById(qid);
+            }
+        }
+    }
 }

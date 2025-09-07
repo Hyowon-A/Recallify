@@ -38,7 +38,6 @@ public class UserController {
                     Map.of("error", e.getMessage())
             );
         }
-
     }
 
     @PostMapping("/login")
