@@ -84,4 +84,42 @@ public class UserController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
+    @PostMapping("/sendResetCode")
+    public ResponseEntity<?> sendResetCode(@RequestBody String email) {
+        try {
+            userService.sendResetCode(email);
+            return ResponseEntity.ok().body(Map.of("success", "Reset code sent to " + email));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/verifyResetCode")
+    public ResponseEntity<?> verifyResetCode(@RequestBody VerifyResetCodeRequest verifyResetCodeRequest) {
+        try {
+            userService.verifyResetCode(verifyResetCodeRequest.email(), verifyResetCodeRequest.code());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(
+            @RequestBody ResetPasswordRequest resetPasswordRequest) {
+        try {
+            userService.resetPassword(resetPasswordRequest.email(), resetPasswordRequest.newPassword());
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return  ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 }
