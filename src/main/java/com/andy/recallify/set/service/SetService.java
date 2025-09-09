@@ -1,8 +1,9 @@
 package com.andy.recallify.set.service;
 
 import com.andy.recallify.set.model.Set;
-import com.andy.recallify.set.dto.EditMcqSetRequest;
+import com.andy.recallify.set.dto.EditSetRequest;
 import com.andy.recallify.set.dto.SetDto;
+import com.andy.recallify.set.repository.FlashcardRepository;
 import com.andy.recallify.set.repository.McqRepository;
 import com.andy.recallify.set.repository.SetRepository;
 import com.andy.recallify.user.model.User;
@@ -19,12 +20,14 @@ public class SetService {
     private final SetRepository setRepository;
     private final UserRepository userRepository;
     private final McqRepository mcqRepository;
+    private final FlashcardRepository flashcardRepository;
 
     @Autowired
-    public SetService(SetRepository setRepository, UserRepository userRepository, McqRepository mcqRepository) {
+    public SetService(SetRepository setRepository, UserRepository userRepository, McqRepository mcqRepository, FlashcardRepository flashcardRepository) {
         this.setRepository = setRepository;
         this.userRepository = userRepository;
         this.mcqRepository = mcqRepository;
+        this.flashcardRepository = flashcardRepository;
     }
 
     public Long createSet(String mcqSetTitle, boolean isPublic, String email) {
@@ -41,54 +44,70 @@ public class SetService {
         return set.getId();
     }
 
-    public List<SetDto> getMyMcqSets(String email) {
+    public List<SetDto> getMySets(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<Set> sets = setRepository.findAllByUser(user);
 
-        return sets.stream()
-                .map(set -> new SetDto(
-                        set.getId(),
-                        set.getTitle(),
-                        set.isPublic(),
-                        set.getMcqs().size()
-                ))
-                .toList();
+        return sets.stream().map(set -> {
+            int mcq = (set.getMcqs() == null) ? 0 : set.getMcqs().size();
+            int fl  = (set.getFlashcards() == null) ? 0 : set.getFlashcards().size();
+
+            // Only MCQ or FLASHCARD
+            String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
+            int count   = type.equals("MCQ") ? mcq : fl;
+
+            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, true);
+        }).toList();
     }
 
-    public List<SetDto> getPublicMcqSets() {
+    public List<SetDto> getPublicSets(String email) {
         List<Set> sets = setRepository.findAllByIsPublicTrue();
+        Long me = userRepository.findByEmail(email).get().getId();
 
-        return sets.stream()
-                .map(set -> new SetDto(
-                        set.getId(),
-                        set.getTitle(),
-                        set.isPublic(),
-                        set.getMcqs().size()
-                ))
-                .toList();
+        return sets.stream().map(set -> {
+            int mcq = (set.getMcqs() == null) ? 0 : set.getMcqs().size();
+            int fl  = (set.getFlashcards() == null) ? 0 : set.getFlashcards().size();
+
+            // Only MCQ or FLASHCARD
+            String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
+            int count   = type.equals("MCQ") ? mcq : fl;
+
+            boolean isOwner = set.getUser().getId().equals(me);
+
+            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, isOwner);
+        }).toList();
     }
 
-    public SetDto getMcqSetById(Long id) {
+    public SetDto getSetById(Long id) {
         Set set = setRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("MCQ Set not found: " + id));
+
+        int mcq = (set.getMcqs() == null) ? 0 : set.getMcqs().size();
+        int fl  = (set.getFlashcards() == null) ? 0 : set.getFlashcards().size();
+
+        // Only MCQ or FLASHCARD
+        String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
+        int count   = type.equals("MCQ") ? mcq : fl;
 
         // map entity → DTO
         return new SetDto(
                 set.getId(),
                 set.getTitle(),
                 set.isPublic(),
-                set.getMcqs() != null ? set.getMcqs().size() : 0
+                count,
+                type,
+                true
         );
     }
 
-    public void deleteMcqSetById(Long id) {
+    public void deleteSetById(Long id) {
         setRepository.deleteById(id);
     }
 
     @Transactional
-    public void editMcqSet(EditMcqSetRequest req) {
+    public void editSet(EditSetRequest req) {
         Set set = setRepository.findById(req.setId())
                 .orElseThrow(() -> new IllegalArgumentException("Set not found"));
 
@@ -103,7 +122,12 @@ public class SetService {
 
         if (req.deletedIds() != null) {
             for (Long qid : req.deletedIds()) {
-                mcqRepository.deleteById(qid);
+                if (req.type().equals("MCQ")) {
+                    mcqRepository.deleteById(qid);
+                }
+                if (req.type().equals("FLASHCARD")) {
+                    flashcardRepository.deleteById(qid);
+                }
             }
         }
     }

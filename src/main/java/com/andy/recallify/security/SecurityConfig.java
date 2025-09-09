@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/**", "/api/user/register", "/api/mcq/**", "/api/mcqSet/**", "/api/upload/**" ).permitAll()
+                        .requestMatchers("/api/user/**", "/api/flashcard/**", "/api/mcq/**", "/api/mcqSet/**", "/api/upload/**" ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/mcqSet/get/**").authenticated()
                         .anyRequest().authenticated()
                 )

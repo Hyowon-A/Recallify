@@ -29,12 +29,23 @@ public class Set {
     @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Mcq> mcqs = new ArrayList<>();
 
+    @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Flashcard> flashcards = new ArrayList<>();
+
     public List<Mcq> getMcqs() {
         return mcqs;
     }
 
     public void setMcqs(List<Mcq> mcqs) {
         this.mcqs = mcqs;
+    }
+
+    public List<Flashcard> getFlashcards() {
+        return flashcards;
+    }
+
+    public void setFlashcards(List<Flashcard> flashcards) {
+        this.flashcards = flashcards;
     }
 
     public long getId() {
