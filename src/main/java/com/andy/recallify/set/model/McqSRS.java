@@ -1,8 +1,10 @@
 package com.andy.recallify.set.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "mcq_SRS")
@@ -20,7 +22,23 @@ public class McqSRS {
     private float ef;   // Easiness Factor
     private Timestamp lastReviewedAt;
     private Timestamp nextReviewAt;
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private Timestamp createdAt;
+
+    public McqSRS(Mcq mcq, int interval_hours, int repetitions, float ef, Timestamp lastReviewedAt, Timestamp nextReviewAt) {
+        this.mcq = mcq;
+        this.interval_hours = interval_hours;
+        this.repetitions = repetitions;
+        this.ef = ef;
+        this.lastReviewedAt = lastReviewedAt;
+        this.nextReviewAt = nextReviewAt;
+    }
+
+    public McqSRS() {
+
+    }
 
     public Long getId() {
         return id;

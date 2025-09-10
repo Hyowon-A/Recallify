@@ -1,6 +1,7 @@
 package com.andy.recallify.set.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -21,7 +22,23 @@ public class FlashcardSRS {
     private float ef;   // Easiness Factor
     private Timestamp lastReviewedAt;
     private Timestamp nextReviewAt;
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private Timestamp createdAt;
+
+    public FlashcardSRS(Flashcard flashcard, int interval_hours, int repetitions, float ef, Timestamp lastReviewedAt, Timestamp nextReviewAt) {
+        this.flashcard = flashcard;
+        this.interval_hours = interval_hours;
+        this.repetitions = repetitions;
+        this.ef = ef;
+        this.lastReviewedAt = lastReviewedAt;
+        this.nextReviewAt = nextReviewAt;
+    }
+
+    public FlashcardSRS() {
+
+    }
 
     public Long getId() {
         return id;

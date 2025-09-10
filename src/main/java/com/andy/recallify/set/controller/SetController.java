@@ -1,6 +1,7 @@
 package com.andy.recallify.set.controller;
 
 import com.andy.recallify.set.dto.EditSetRequest;
+import com.andy.recallify.set.dto.PublicSetDto;
 import com.andy.recallify.set.service.SetService;
 import com.andy.recallify.set.dto.SetDto;
 import com.andy.recallify.security.JwtUtil;
@@ -63,7 +64,7 @@ public class SetController {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            List<SetDto> publicSets = setService.getPublicSets(email);
+            List<PublicSetDto> publicSets = setService.getPublicSets(email);
             return ResponseEntity.ok(publicSets);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());

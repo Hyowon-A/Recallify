@@ -1,11 +1,10 @@
 package com.andy.recallify.set.service;
 
+import com.andy.recallify.set.dto.PublicSetDto;
 import com.andy.recallify.set.model.Set;
 import com.andy.recallify.set.dto.EditSetRequest;
 import com.andy.recallify.set.dto.SetDto;
-import com.andy.recallify.set.repository.FlashcardRepository;
-import com.andy.recallify.set.repository.McqRepository;
-import com.andy.recallify.set.repository.SetRepository;
+import com.andy.recallify.set.repository.*;
 import com.andy.recallify.user.model.User;
 import com.andy.recallify.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -21,13 +20,17 @@ public class SetService {
     private final UserRepository userRepository;
     private final McqRepository mcqRepository;
     private final FlashcardRepository flashcardRepository;
+    private final FlashcardSRSRepository flashcardSRSRepository;
+    private final McqSRSRepository mcqSRSRepository;
 
     @Autowired
-    public SetService(SetRepository setRepository, UserRepository userRepository, McqRepository mcqRepository, FlashcardRepository flashcardRepository) {
+    public SetService(SetRepository setRepository, UserRepository userRepository, McqRepository mcqRepository, FlashcardRepository flashcardRepository, FlashcardSRSRepository flashcardSRSRepository, McqSRSRepository mcqSRSRepository) {
         this.setRepository = setRepository;
         this.userRepository = userRepository;
         this.mcqRepository = mcqRepository;
         this.flashcardRepository = flashcardRepository;
+        this.flashcardSRSRepository = flashcardSRSRepository;
+        this.mcqSRSRepository = mcqSRSRepository;
     }
 
     public Long createSet(String mcqSetTitle, boolean isPublic, String email) {
@@ -58,11 +61,25 @@ public class SetService {
             String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
             int count   = type.equals("MCQ") ? mcq : fl;
 
-            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, true);
+            int newC = 0;
+            int learn = 0;
+            int due = 0;
+
+            if (type.equals("FLASHCARD")) {
+                newC = flashcardSRSRepository.findNewCardsBySetId(set.getId()).size();
+                learn = flashcardSRSRepository.findLearnCardsBySetId(set.getId()).size();
+                due = flashcardSRSRepository.findDueCardsBySetId(set.getId()).size();
+            } else {
+                newC = mcqSRSRepository.findNewCardsBySetId(set.getId()).size();
+                learn = mcqSRSRepository.findLearnCardsBySetId(set.getId()).size();
+                due = mcqSRSRepository.findDueCardsBySetId(set.getId()).size();
+            }
+
+            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, true, newC, learn, due);
         }).toList();
     }
 
-    public List<SetDto> getPublicSets(String email) {
+    public List<PublicSetDto> getPublicSets(String email) {
         List<Set> sets = setRepository.findAllByIsPublicTrue();
         Long me = userRepository.findByEmail(email).get().getId();
 
@@ -76,7 +93,7 @@ public class SetService {
 
             boolean isOwner = set.getUser().getId().equals(me);
 
-            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, isOwner);
+            return new PublicSetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, isOwner);
         }).toList();
     }
 
@@ -91,6 +108,20 @@ public class SetService {
         String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
         int count   = type.equals("MCQ") ? mcq : fl;
 
+        int newC = 0;
+        int learn = 0;
+        int due = 0;
+
+        if (type.equals("FLASHCARD")) {
+            newC = flashcardSRSRepository.findNewCardsBySetId(set.getId()).size();
+            learn = flashcardSRSRepository.findLearnCardsBySetId(set.getId()).size();
+            due = flashcardSRSRepository.findDueCardsBySetId(set.getId()).size();
+        } else {
+            newC = mcqSRSRepository.findNewCardsBySetId(set.getId()).size();
+            learn = mcqSRSRepository.findLearnCardsBySetId(set.getId()).size();
+            due = mcqSRSRepository.findDueCardsBySetId(set.getId()).size();
+        }
+
         // map entity → DTO
         return new SetDto(
                 set.getId(),
@@ -98,7 +129,8 @@ public class SetService {
                 set.isPublic(),
                 count,
                 type,
-                true
+                true,
+                newC, learn, due
         );
     }
 
