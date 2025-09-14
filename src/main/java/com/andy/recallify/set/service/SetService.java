@@ -2,7 +2,7 @@ package com.andy.recallify.set.service;
 
 import com.andy.recallify.set.dto.PublicSetDto;
 import com.andy.recallify.set.dto.SetStatsDto;
-import com.andy.recallify.set.model.Set;
+import com.andy.recallify.set.model.*;
 import com.andy.recallify.set.dto.EditSetRequest;
 import com.andy.recallify.set.dto.SetDto;
 import com.andy.recallify.set.repository.*;
@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -182,5 +183,59 @@ public class SetService {
                 }
             }
         }
+    }
+
+    @Transactional
+    public Long copySet(Long sourceSetId, String email) {
+        Set sourceSet = setRepository.findById(sourceSetId)
+                .orElseThrow(() -> new IllegalArgumentException("Set not found"));
+
+        User user =  userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Create a new set for the user
+        Set copy = new Set();
+        copy.setUser(user);
+        copy.setTitle(sourceSet.getTitle() + " (Copy)");
+        copy.setPublic(false);
+        setRepository.save(copy);
+
+        if (sourceSet.getMcqs() != null && !sourceSet.getMcqs().isEmpty()) {
+            sourceSet.getMcqs().forEach(mcq -> {
+                Mcq newMcq = new Mcq();
+                newMcq.setQuestion(mcq.getQuestion());
+                newMcq.setOption1(mcq.getOption1());
+                newMcq.setExplanation1(mcq.getExplanation1());
+                newMcq.setOption2(mcq.getOption2());
+                newMcq.setExplanation2(mcq.getExplanation2());
+                newMcq.setOption3(mcq.getOption3());
+                newMcq.setExplanation3(mcq.getExplanation3());
+                newMcq.setOption4(mcq.getOption4());
+                newMcq.setExplanation4(mcq.getExplanation4());
+                newMcq.setAnswer(mcq.getAnswer());
+                newMcq.setSet(copy);
+                mcqRepository.save(newMcq);
+
+                // also init SRS row
+                McqSRS srs = new McqSRS(newMcq, 0, 0, (float) 2.5, null, null);
+                mcqSRSRepository.save(srs);
+            });
+        }
+
+        if (sourceSet.getFlashcards() != null && !sourceSet.getFlashcards().isEmpty()) {
+            sourceSet.getFlashcards().forEach(card -> {
+                Flashcard newCard = new Flashcard();
+                newCard.setFront(card.getFront());
+                newCard.setBack(card.getBack());
+                newCard.setSet(copy);
+                flashcardRepository.save(newCard);
+
+                // also init SRS row
+                FlashcardSRS srs = new FlashcardSRS(newCard, 0, 0, (float) 2.5, null, null);
+                flashcardSRSRepository.save(srs);
+            });
+        }
+
+        return copy.getId();
     }
 }

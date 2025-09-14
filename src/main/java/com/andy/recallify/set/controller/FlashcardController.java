@@ -44,7 +44,6 @@ public class FlashcardController {
     public ResponseEntity<?> getFlashcards(@PathVariable Long setId) {
         try {
             List<FlashcardDto> flashcards = flashcardService.getFlashcards(setId);
-            System.out.println(flashcards);
             return ResponseEntity.ok(flashcards);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to get flashcards: " + e.getMessage());

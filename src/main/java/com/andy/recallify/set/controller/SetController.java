@@ -82,7 +82,7 @@ public class SetController {
     }
 
     @DeleteMapping("/delete/{setId}")
-    public ResponseEntity<?> deleteMcqSet(@PathVariable Long setId) {
+    public ResponseEntity<?> deleteSet(@PathVariable Long setId) {
         try {
             setService.deleteSetById(setId);
         } catch (Exception e) {
@@ -92,7 +92,7 @@ public class SetController {
     }
 
     @PostMapping("/edit")
-    public ResponseEntity<?> updateMcqSet(
+    public ResponseEntity<?> updateSet(
             @RequestBody EditSetRequest editSetRequest,
             @RequestHeader("Authorization") String authHeader
     ) {
@@ -103,6 +103,21 @@ public class SetController {
             setService.editSet(editSetRequest);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/copy/{sourceSetId}")
+    public ResponseEntity<?> copySet(
+            @PathVariable Long sourceSetId,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String email = jwtUtil.extractEmail(token);
+            Long newSetId = setService.copySet(sourceSetId, email);
+            return ResponseEntity.ok(Map.of("id", newSetId));
+        } catch  (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }

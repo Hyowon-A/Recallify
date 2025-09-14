@@ -35,11 +35,11 @@ public class Mcq {
         return id;
     }
 
-    public Set getMcqSet() {
+    public Set getSet() {
         return set;
     }
 
-    public void setMcqSet(Set set) {
+    public void setSet(Set set) {
         this.set = set;
     }
 

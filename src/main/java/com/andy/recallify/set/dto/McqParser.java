@@ -17,7 +17,7 @@ public class McqParser {
         return dtos.stream()
                 .map(dto -> {
                     Mcq mcq = new Mcq();
-                    mcq.setMcqSet(set);
+                    mcq.setSet(set);
                     mcq.setQuestion(dto.getQuestion());
                     mcq.setOption1(dto.getOption1());
                     mcq.setExplanation1(dto.getExplanation1());
