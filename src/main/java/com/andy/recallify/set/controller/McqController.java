@@ -52,7 +52,6 @@ public class McqController {
     @PostMapping("/SRS/update/{setId}")
     public ResponseEntity<?> updateMcqSRS(@RequestBody UpdateSRSRequest updateSRSRequest, @PathVariable Long setId) {
         try {
-            System.out.println(updateSRSRequest);
             mcqService.updateMcqSRS(setId, updateSRSRequest.grade(), updateSRSRequest.interval_hours(),
                     updateSRSRequest.ef(), updateSRSRequest.repetitions());
             return ResponseEntity.ok().build();

@@ -33,10 +33,13 @@ public class UserController {
     public ResponseEntity<?> addNewUser(@RequestBody User user) {
         try {
             User registered = userService.addNewUser(user);
-            String token = jwtUtil.generateAccessToken(registered.getEmail());
+            String accessToken = jwtUtil.generateAccessToken(registered.getEmail());
+            String refreshToken = jwtUtil.generateRefreshToken(registered.getEmail());
+            userService.saveRefreshToken(registered.getEmail(), refreshToken);
 
             return ResponseEntity.ok().body(Map.of(
-                    "token", token,
+                    "accessToken", accessToken,
+                    "refreshToken", refreshToken,
                     "name", registered.getName(),
                     "email", registered.getEmail()
             ));
