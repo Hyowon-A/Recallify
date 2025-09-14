@@ -33,14 +33,31 @@ public interface FlashcardSRSRepository extends JpaRepository<FlashcardSRS, Long
 
     @Query("""
         SELECT new com.andy.recallify.set.dto.SetStatsDto(
+            f.set.id,
             SUM(CASE WHEN s.lastReviewedAt IS NULL THEN 1 ELSE 0 END),
             SUM(CASE WHEN s.repetitions <= 2 AND s.lastReviewedAt IS NOT NULL THEN 1 ELSE 0 END),
             SUM(CASE WHEN s.repetitions > 2 AND s.nextReviewAt <= CURRENT_TIMESTAMP THEN 1 ELSE 0 END)
         )
-        FROM FlashcardSRS s JOIN s.flashcard f WHERE f.set.id = :setId
+        FROM FlashcardSRS s
+        JOIN s.flashcard f
+        WHERE f.set.id IN :setIds
+        GROUP BY f.set.id
+    """)
+    List<SetStatsDto> countFlashcardStatsGrouped(@Param("setIds") List<Long> setIds);
+
+    @Query("""
+        SELECT new com.andy.recallify.set.dto.SetStatsDto(
+            f.set.id,
+            COUNT(CASE WHEN s.lastReviewedAt IS NULL THEN 1 ELSE null END),
+            COUNT(CASE WHEN s.repetitions <= 2 AND s.lastReviewedAt IS NOT NULL THEN 1 ELSE null END),
+            COUNT(CASE WHEN s.repetitions > 2 AND s.nextReviewAt <= CURRENT_TIMESTAMP THEN 1 ELSE null END)
+        )
+        FROM FlashcardSRS s
+        JOIN s.flashcard f
+        WHERE f.set.id = :setId
+        GROUP BY f.set.id
     """)
     SetStatsDto countFlashcardStats(@Param("setId") Long setId);
-
 
     Optional<FlashcardSRS> findByFlashcardId(Long flashcardId);
 

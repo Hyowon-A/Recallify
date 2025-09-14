@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SetService {
@@ -55,104 +57,88 @@ public class SetService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         List<Set> sets = setRepository.findAllByUser(user);
+        List<Long> setIds = sets.stream().map(Set::getId).toList();
 
-        return sets.stream().map(set -> {
-            int mcq = mcqRepository.countMcqsBySetId(set.getId());
-            int fl  = flashcardRepository.countFlashcardsBySetId(set.getId());
+        Map<Long, Long> mcqCounts = mcqRepository.countMcqsGroupedBySetIds(setIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
 
-            // Only MCQ or FLASHCARD
-            String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
-            int count   = type.equals("MCQ") ? mcq : fl;
+        Map<Long, Long> flCounts = flashcardRepository.countFlashcardsGroupedBySetIds(setIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
 
-            int newC = 0;
-            int learn = 0;
-            int due = 0;
+        Map<Long, SetStatsDto> flashStats = flashcardSRSRepository.countFlashcardStatsGrouped(setIds).stream()
+                .filter(s -> s.setId() != null)
+                .collect(Collectors.toMap(SetStatsDto::setId, s -> s, (s1, s2) -> s1));
 
-            if (type.equals("FLASHCARD")) {
-                SetStatsDto stat = flashcardSRSRepository.countFlashcardStats(set.getId());
-                newC  = Math.toIntExact(stat.newC());
-                learn = Math.toIntExact(stat.learn());
-                due   = Math.toIntExact(stat.due());
-            } else {
-                SetStatsDto stat = mcqSRSRepository.countMcqStats(set.getId());
-                newC  = Math.toIntExact(stat.newC());
-                learn = Math.toIntExact(stat.learn());
-                due   = Math.toIntExact(stat.due());
-            }
-            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, true, newC, learn, due);
-        }).toList();
+        Map<Long, SetStatsDto> mcqStats = mcqSRSRepository.countMcqStatsGrouped(setIds).stream()
+                .filter(s -> s.setId() != null)
+                .collect(Collectors.toMap(SetStatsDto::setId, s -> s, (s1, s2) -> s1));
+
+        return sets.stream()
+                .map(set -> toSetDto(
+                        set,
+                        true,
+                        mcqCounts.get(set.getId()),
+                        flCounts.get(set.getId()),
+                        mcqStats.get(set.getId()),
+                        flashStats.get(set.getId())))
+                .toList();
     }
 
     public List<SetDto> getPublicSets(String email) {
+        Long userId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found")).getId();
+
         List<Set> sets = setRepository.findAllByIsPublicTrue();
-        Long me = userRepository.findByEmail(email).get().getId();
+        List<Long> setIds = sets.stream().map(Set::getId).toList();
 
-        return sets.stream().map(set -> {
-            int mcq = (set.getMcqs() == null) ? 0 : set.getMcqs().size();
-            int fl  = (set.getFlashcards() == null) ? 0 : set.getFlashcards().size();
+        Map<Long, Long> mcqCounts = mcqRepository.countMcqsGroupedBySetIds(setIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
 
-            // Only MCQ or FLASHCARD
-            String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
-            int count   = type.equals("MCQ") ? mcq : fl;
+        Map<Long, Long> flCounts = flashcardRepository.countFlashcardsGroupedBySetIds(setIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
 
-            boolean isOwner = set.getUser().getId().equals(me);
+        Map<Long, SetStatsDto> flashStats = flashcardSRSRepository.countFlashcardStatsGrouped(setIds).stream()
+                .collect(Collectors.toMap(SetStatsDto::setId, s -> s));
 
-            int newC = 0;
-            int learn = 0;
-            int due = 0;
+        Map<Long, SetStatsDto> mcqStats = mcqSRSRepository.countMcqStatsGrouped(setIds).stream()
+                .collect(Collectors.toMap(SetStatsDto::setId, s -> s));
 
-            if (type.equals("FLASHCARD")) {
-                SetStatsDto stat = flashcardSRSRepository.countFlashcardStats(set.getId());
-                newC  = Math.toIntExact(stat.newC());
-                learn = Math.toIntExact(stat.learn());
-                due   = Math.toIntExact(stat.due());
-            } else {
-                SetStatsDto stat = mcqSRSRepository.countMcqStats(set.getId());
-                newC  = Math.toIntExact(stat.newC());
-                learn = Math.toIntExact(stat.learn());
-                due   = Math.toIntExact(stat.due());
-            }
-            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, isOwner, newC, learn, due);
-        }).toList();
+        return sets.stream()
+                .map(set -> toSetDto(
+                        set,
+                        set.getUser().getId().equals(userId),
+                        mcqCounts.get(set.getId()),
+                        flCounts.get(set.getId()),
+                        mcqStats.get(set.getId()),
+                        flashStats.get(set.getId())))
+                .toList();
     }
 
     public SetDto getSetById(Long id) {
         Set set = setRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("MCQ Set not found: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Set not found"));
 
-        int mcq = mcqRepository.countMcqsBySetId(set.getId());
-        int fl  = flashcardRepository.countFlashcardsBySetId(set.getId());
+        Long setId = set.getId();
 
-        // Only MCQ or FLASHCARD
-        String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
-        int count   = type.equals("MCQ") ? mcq : fl;
+        long mcq = mcqRepository.countMcqsBySetId(setId);
+        long fl = flashcardRepository.countFlashcardsBySetId(setId);
 
-        int newC = 0;
-        int learn = 0;
-        int due = 0;
+        SetStatsDto mcqStat = mcqSRSRepository.countMcqStats(setId);
+        SetStatsDto flStat = flashcardSRSRepository.countFlashcardStats(setId);
 
-        if (type.equals("FLASHCARD")) {
-            SetStatsDto stat = flashcardSRSRepository.countFlashcardStats(set.getId());
-            newC  = Math.toIntExact(stat.newC());
-            learn = Math.toIntExact(stat.learn());
-            due   = Math.toIntExact(stat.due());
-        } else {
-            SetStatsDto stat = mcqSRSRepository.countMcqStats(set.getId());
-            newC  = Math.toIntExact(stat.newC());
-            learn = Math.toIntExact(stat.learn());
-            due   = Math.toIntExact(stat.due());
-        }
-
-        // map entity → DTO
-        return new SetDto(
-                set.getId(),
-                set.getTitle(),
-                set.isPublic(),
-                count,
-                type,
-                true,
-                newC, learn, due
-        );
+        return toSetDto(set, true, mcq, fl, mcqStat, flStat);
     }
 
     public void deleteSetById(Long id) {
@@ -238,4 +224,28 @@ public class SetService {
 
         return copy.getId();
     }
+
+    private SetDto toSetDto(
+            Set set,
+            boolean isOwner,
+            Long mcqCount,
+            Long flashcardCount,
+            SetStatsDto mcqStats,
+            SetStatsDto flashStats
+    ) {
+        Long id = set.getId();
+        int mcq = Math.toIntExact(mcqCount != null ? mcqCount : 0);
+        int fl = Math.toIntExact(flashcardCount != null ? flashcardCount : 0);
+
+        String type = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie → MCQ
+        int count = type.equals("MCQ") ? mcq : fl;
+
+        SetStatsDto stats = type.equals("MCQ") ? mcqStats : flashStats;
+        int newC = stats != null ? Math.toIntExact(stats.newC()) : 0;
+        int learn = stats != null ? Math.toIntExact(stats.learn()) : 0;
+        int due = stats != null ? Math.toIntExact(stats.due()) : 0;
+
+        return new SetDto(id, set.getTitle(), set.isPublic(), count, type, isOwner, newC, learn, due);
+    }
+
 }

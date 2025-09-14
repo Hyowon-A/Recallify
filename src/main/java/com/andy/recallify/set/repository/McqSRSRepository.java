@@ -33,13 +33,32 @@ public interface McqSRSRepository extends JpaRepository<McqSRS, Long> {
 
     @Query("""
         SELECT new com.andy.recallify.set.dto.SetStatsDto(
+            m.set.id,
             SUM(CASE WHEN s.lastReviewedAt IS NULL THEN 1 ELSE 0 END),
             SUM(CASE WHEN s.repetitions <= 2 AND s.lastReviewedAt IS NOT NULL THEN 1 ELSE 0 END),
             SUM(CASE WHEN s.repetitions > 2 AND s.nextReviewAt <= CURRENT_TIMESTAMP THEN 1 ELSE 0 END)
         )
-        FROM McqSRS s JOIN s.mcq m WHERE m.set.id = :setId
+        FROM McqSRS s
+        JOIN s.mcq m
+        WHERE m.set.id IN :setIds
+        GROUP BY m.set.id
+    """)
+    List<SetStatsDto> countMcqStatsGrouped(@Param("setIds") List<Long> setIds);
+
+    @Query("""
+        SELECT new com.andy.recallify.set.dto.SetStatsDto(
+            m.set.id,
+            COUNT(CASE WHEN s.lastReviewedAt IS NULL THEN 1 ELSE null END),
+            COUNT(CASE WHEN s.repetitions <= 2 AND s.lastReviewedAt IS NOT NULL THEN 1 ELSE null END),
+            COUNT(CASE WHEN s.repetitions > 2 AND s.nextReviewAt <= CURRENT_TIMESTAMP THEN 1 ELSE null END)
+        )
+        FROM McqSRS s
+        JOIN s.mcq m
+        WHERE m.set.id = :setId
+        GROUP BY m.set.id
     """)
     SetStatsDto countMcqStats(@Param("setId") Long setId);
+
 
     Optional<McqSRS> findByMcqId(Long mcqId);
 }
