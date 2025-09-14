@@ -22,6 +22,17 @@ public class User {
     @Column(updatable = false)
     private Timestamp createdAt;
 
+    @Column(name="refresh _token")
+    private String refreshToken;
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
     public Long getId() {
         return id;
     }
@@ -59,13 +70,11 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }
 }
-
 
 
 

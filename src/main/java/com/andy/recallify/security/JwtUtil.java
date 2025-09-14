@@ -18,8 +18,18 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
     }
 
-    public String generateToken(String email) {
-        long EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 1 day = 86400000
+    public String generateAccessToken(String email) {
+        long EXPIRATION_TIME = 1000 * 60 * 15; // 15 minutes
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(String email) {
+        long EXPIRATION_TIME = 1000L * 60 * 60 * 24 * 7; // 7 days
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())

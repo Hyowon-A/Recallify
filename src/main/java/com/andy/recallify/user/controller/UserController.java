@@ -33,7 +33,7 @@ public class UserController {
     public ResponseEntity<?> addNewUser(@RequestBody User user) {
         try {
             User registered = userService.addNewUser(user);
-            String token = jwtUtil.generateToken(registered.getEmail());
+            String token = jwtUtil.generateAccessToken(registered.getEmail());
 
             return ResponseEntity.ok().body(Map.of(
                     "token", token,
@@ -51,10 +51,14 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             User user = userService.login(request.getEmail(), request.getPassword());
-            String token = jwtUtil.generateToken(request.getEmail());
+
+            String accessToken = jwtUtil.generateAccessToken(user.getEmail());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+            userService.saveRefreshToken(user.getEmail(), refreshToken);
 
             return ResponseEntity.ok().body(Map.of(
-                    "token", token,
+                    "accessToken", accessToken,
+                    "refreshToken", refreshToken,
                     "name", user.getName(),
                     "email", user.getEmail()
             ));
@@ -64,6 +68,7 @@ public class UserController {
             );
         }
     }
+
 
     @PutMapping("/edit")
     public ResponseEntity<?> updateUser(
@@ -76,14 +81,16 @@ public class UserController {
 
             User updatedUser = userService.updateUser(email, updateUserRequest);
 
-            String updatedToken = jwtUtil.generateToken(updatedUser.getEmail());
+            String updatedAccessToken = jwtUtil.generateAccessToken(updatedUser.getEmail());
+            String updatedRefreshToken = jwtUtil.generateRefreshToken(updatedUser.getEmail());
+            userService.saveRefreshToken(updatedUser.getEmail(), updatedRefreshToken);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("name", updatedUser.getName());
-            response.put("email", updatedUser.getEmail());
-            response.put("token", updatedToken);
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(Map.of(
+                    "accessToken", updatedAccessToken,
+                    "refreshToken", updatedRefreshToken,
+                    "name", updatedUser.getName(),
+                    "email", updatedUser.getEmail()
+            ));
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
@@ -126,6 +133,36 @@ public class UserController {
             return  ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> payload) {
+        try {
+            String refreshToken = payload.get("refreshToken");
+            String email = jwtUtil.extractEmail(refreshToken);
+
+            if (!jwtUtil.validateToken(refreshToken) || !userService.isRefreshTokenValid(email, refreshToken)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid refresh token"));
+            }
+
+            String newAccessToken = jwtUtil.generateAccessToken(email);
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token refresh failed"));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            String email = jwtUtil.extractEmail(token);
+            userService.invalidateRefreshToken(email);
+
+            return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 }

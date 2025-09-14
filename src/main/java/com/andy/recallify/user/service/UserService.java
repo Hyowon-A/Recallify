@@ -164,4 +164,27 @@ public class UserService {
 
         user.setPassword(hashPassword(newPassword.trim()));
     }
+
+    @Transactional
+    public void saveRefreshToken(String email, String refreshToken) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+    }
+
+    public boolean isRefreshTokenValid(String email, String token) {
+        return userRepository.findByEmail(email)
+                .map(u -> token.equals(u.getRefreshToken()))
+                .orElse(false);
+    }
+
+    @Transactional
+    public void invalidateRefreshToken(String email) {
+        userRepository.findByEmail(email).ifPresent(u -> {
+            u.setRefreshToken(null);
+            userRepository.save(u);
+        });
+    }
 }
