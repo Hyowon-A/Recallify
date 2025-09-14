@@ -45,7 +45,9 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:5173"));
+        cfg.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "https://recallify-fe.vercel.app"));
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         cfg.setAllowedHeaders(List.of("Authorization","Content-Type"));
         cfg.setAllowCredentials(true);
