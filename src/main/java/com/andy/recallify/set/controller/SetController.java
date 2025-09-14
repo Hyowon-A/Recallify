@@ -64,7 +64,7 @@ public class SetController {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            List<PublicSetDto> publicSets = setService.getPublicSets(email);
+            List<SetDto> publicSets = setService.getPublicSets(email);
             return ResponseEntity.ok(publicSets);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());

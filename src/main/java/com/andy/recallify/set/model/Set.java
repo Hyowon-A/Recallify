@@ -26,10 +26,10 @@ public class Set {
     @Column(updatable = false)
     private Timestamp createdAt;
 
-    @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Mcq> mcqs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Flashcard> flashcards = new ArrayList<>();
 
     public List<Mcq> getMcqs() {

@@ -2,6 +2,9 @@ package com.andy.recallify.set.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "flashcards")
 public class Flashcard {
@@ -15,6 +18,9 @@ public class Flashcard {
 
     private String front;
     private String back;
+
+    @OneToMany(mappedBy = "flashcard", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<FlashcardSRS> flashcardSRSs = new ArrayList<>();
 
     public Long getId() {
         return id;

@@ -1,5 +1,6 @@
 package com.andy.recallify.set.controller;
 
+import com.andy.recallify.set.dto.UpdateSRSRequest;
 import com.andy.recallify.set.service.McqService;
 import com.andy.recallify.set.dto.McqDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,18 @@ public class McqController {
             return ResponseEntity.ok(mcqs);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to get MCQs: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/SRS/update/{setId}")
+    public ResponseEntity<?> updateMcqSRS(@RequestBody UpdateSRSRequest updateSRSRequest, @PathVariable Long setId) {
+        try {
+            System.out.println(updateSRSRequest);
+            mcqService.updateMcqSRS(setId, updateSRSRequest.grade(), updateSRSRequest.interval_hours(),
+                    updateSRSRequest.ef(), updateSRSRequest.repetitions());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return  ResponseEntity.internalServerError().body("Failed to update flashcards: " + e.getMessage());
         }
     }
 

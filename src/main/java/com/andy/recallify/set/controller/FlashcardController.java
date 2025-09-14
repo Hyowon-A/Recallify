@@ -2,6 +2,7 @@ package com.andy.recallify.set.controller;
 
 import com.andy.recallify.set.dto.FlashcardDto;
 import com.andy.recallify.set.dto.McqDto;
+import com.andy.recallify.set.dto.UpdateSRSRequest;
 import com.andy.recallify.set.service.FlashcardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -43,9 +44,22 @@ public class FlashcardController {
     public ResponseEntity<?> getFlashcards(@PathVariable Long setId) {
         try {
             List<FlashcardDto> flashcards = flashcardService.getFlashcards(setId);
+            System.out.println(flashcards);
             return ResponseEntity.ok(flashcards);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to get flashcards: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/SRS/update/{setId}")
+    public ResponseEntity<?> updateFlashcardSRS(@RequestBody UpdateSRSRequest updateSRSRequest, @PathVariable Long setId) {
+        try {
+            System.out.println(updateSRSRequest);
+            flashcardService.updateFlashcardSRS(setId, updateSRSRequest.grade(), updateSRSRequest.interval_hours(),
+                                                updateSRSRequest.ef(), updateSRSRequest.repetitions());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return  ResponseEntity.internalServerError().body("Failed to update flashcards: " + e.getMessage());
         }
     }
 

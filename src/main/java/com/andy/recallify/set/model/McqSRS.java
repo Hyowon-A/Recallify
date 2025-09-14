@@ -17,7 +17,7 @@ public class McqSRS {
     @JoinColumn(name = "mcq_id", nullable = false)
     private Mcq mcq;
 
-    private int interval_hours;
+    private float interval_hours;
     private int repetitions;
     private float ef;   // Easiness Factor
     private Timestamp lastReviewedAt;
@@ -27,7 +27,7 @@ public class McqSRS {
     @Column(updatable = false)
     private Timestamp createdAt;
 
-    public McqSRS(Mcq mcq, int interval_hours, int repetitions, float ef, Timestamp lastReviewedAt, Timestamp nextReviewAt) {
+    public McqSRS(Mcq mcq, float interval_hours, int repetitions, float ef, Timestamp lastReviewedAt, Timestamp nextReviewAt) {
         this.mcq = mcq;
         this.interval_hours = interval_hours;
         this.repetitions = repetitions;
@@ -52,11 +52,11 @@ public class McqSRS {
         this.mcq = mcq;
     }
 
-    public int getInterval_hours() {
+    public float getInterval_hours() {
         return interval_hours;
     }
 
-    public void setInterval_hours(int interval_hours) {
+    public void setInterval_hours(float interval_hours) {
         this.interval_hours = interval_hours;
     }
 

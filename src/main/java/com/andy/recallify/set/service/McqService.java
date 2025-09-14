@@ -2,6 +2,8 @@ package com.andy.recallify.set.service;
 
 import com.andy.recallify.generation.GeminiService;
 import com.andy.recallify.generation.PdfUploadService;
+import com.andy.recallify.set.dto.UpdateSRSRequest;
+import com.andy.recallify.set.model.FlashcardSRS;
 import com.andy.recallify.set.model.Mcq;
 import com.andy.recallify.set.model.McqSRS;
 import com.andy.recallify.set.model.Set;
@@ -11,7 +13,10 @@ import com.andy.recallify.set.dto.OptionDto;
 import com.andy.recallify.set.repository.McqRepository;
 import com.andy.recallify.set.repository.McqSRSRepository;
 import com.andy.recallify.set.repository.SetRepository;
+import com.andy.recallify.user.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -80,6 +85,84 @@ public class McqService {
                 new OptionDto("C", m.getOption3(), ans == 3, m.getExplanation3()),
                 new OptionDto("D", m.getOption4(), ans == 4, m.getExplanation4())
         );
-        return new McqDto(m.getId(), m.getQuestion(), "", options);
+
+        McqSRS mcqSRS = mcqSRSRepository.findByMcqId(m.getId())
+                .orElseThrow(() -> new IllegalArgumentException("MCQ not found"));
+
+        LocalDateTime now = LocalDateTime.now();
+        Timestamp nowTs = Timestamp.valueOf(now);
+
+        String srsType = classify(mcqSRS, nowTs);
+
+        return new McqDto(m.getId(), m.getQuestion(), "", options,
+                            mcqSRS.getInterval_hours(), mcqSRS.getEf(), mcqSRS.getRepetitions(), srsType);
+    }
+
+    @Transactional
+    public void updateMcqSRS(Long setId, int grade, float interval_hours, float ef, int repetitions) {
+        McqSRS mSRS = mcqSRSRepository.findByMcqId(setId)
+                .orElseThrow(() -> new IllegalArgumentException("Flashcard not found"));
+
+        UpdateSRSRequest results = estimateNextInterval(grade, interval_hours, ef, repetitions);
+
+        mSRS.setInterval_hours(results.interval_hours());
+        mSRS.setEf(results.ef());
+        mSRS.setRepetitions(results.repetitions());
+        mSRS.setLastReviewedAt(Timestamp.valueOf(LocalDateTime.now()));
+
+        long minutesToAdd = Math.round(results.interval_hours() * 60);
+        LocalDateTime nextReviewAt = LocalDateTime.now().plusMinutes(minutesToAdd);
+        mSRS.setNextReviewAt(Timestamp.valueOf(nextReviewAt));
+        mcqSRSRepository.save(mSRS);
+    }
+
+    private UpdateSRSRequest estimateNextInterval(int grade, float interval_hours, float ef, int rep) {
+        int nextReps = rep;
+        double nextEf = ef;
+        double nextInterval;
+
+        if (grade < 2) {
+            // Forgot
+            nextInterval = (rep == 0) ? 1 : 24; // 1 hour or 1 day
+            nextReps = 0;
+            nextEf = Math.max(1.3, ef - 0.2);
+        } else {
+            // Remembered
+            nextReps += 1;
+
+            if (nextReps == 1) {
+                if (grade == 2) nextInterval = 12;
+                else if (grade == 3) nextInterval = 24;
+                else nextInterval = 48; // grade == 4
+            } else if (nextReps == 2) {
+                if (grade == 2) nextInterval = 72;
+                else if (grade == 3) nextInterval = 144;
+                else nextInterval = 288; // grade == 4
+            } else {
+                nextInterval = interval_hours * nextEf;
+                if (grade == 2) nextInterval *= 0.8;
+                else if (grade == 4) nextInterval *= 1.3;
+            }
+
+            // Update EF if grade ≥ 3
+            nextEf = ef + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
+            nextEf = Math.max(1.3, nextEf);
+        }
+
+        nextInterval = Math.min(nextInterval, 1440); // Cap to 60 days
+
+        return new UpdateSRSRequest(grade, (float) nextInterval, (float) nextEf, nextReps);
+    }
+
+    private String classify(McqSRS srs,  Timestamp nowTs) {
+        String srsType = "";
+        if (srs.getLastReviewedAt() == null) srsType = "newC";
+        if (srs.getRepetitions() <= 2 && srs.getLastReviewedAt() != null) {
+            srsType = "learn";
+        }
+        if (srs.getRepetitions() > 2 && srs.getNextReviewAt().before(nowTs)) {
+            srsType = "due";
+        }
+        return srsType;
     }
 }

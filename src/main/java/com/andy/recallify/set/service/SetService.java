@@ -1,6 +1,7 @@
 package com.andy.recallify.set.service;
 
 import com.andy.recallify.set.dto.PublicSetDto;
+import com.andy.recallify.set.dto.SetStatsDto;
 import com.andy.recallify.set.model.Set;
 import com.andy.recallify.set.dto.EditSetRequest;
 import com.andy.recallify.set.dto.SetDto;
@@ -11,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -54,8 +56,8 @@ public class SetService {
         List<Set> sets = setRepository.findAllByUser(user);
 
         return sets.stream().map(set -> {
-            int mcq = (set.getMcqs() == null) ? 0 : set.getMcqs().size();
-            int fl  = (set.getFlashcards() == null) ? 0 : set.getFlashcards().size();
+            int mcq = mcqRepository.countMcqsBySetId(set.getId());
+            int fl  = flashcardRepository.countFlashcardsBySetId(set.getId());
 
             // Only MCQ or FLASHCARD
             String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
@@ -66,20 +68,21 @@ public class SetService {
             int due = 0;
 
             if (type.equals("FLASHCARD")) {
-                newC = flashcardSRSRepository.findNewCardsBySetId(set.getId()).size();
-                learn = flashcardSRSRepository.findLearnCardsBySetId(set.getId()).size();
-                due = flashcardSRSRepository.findDueCardsBySetId(set.getId()).size();
+                SetStatsDto stat = flashcardSRSRepository.countFlashcardStats(set.getId());
+                newC  = Math.toIntExact(stat.newC());
+                learn = Math.toIntExact(stat.learn());
+                due   = Math.toIntExact(stat.due());
             } else {
-                newC = mcqSRSRepository.findNewCardsBySetId(set.getId()).size();
-                learn = mcqSRSRepository.findLearnCardsBySetId(set.getId()).size();
-                due = mcqSRSRepository.findDueCardsBySetId(set.getId()).size();
+                SetStatsDto stat = mcqSRSRepository.countMcqStats(set.getId());
+                newC  = Math.toIntExact(stat.newC());
+                learn = Math.toIntExact(stat.learn());
+                due   = Math.toIntExact(stat.due());
             }
-
             return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, true, newC, learn, due);
         }).toList();
     }
 
-    public List<PublicSetDto> getPublicSets(String email) {
+    public List<SetDto> getPublicSets(String email) {
         List<Set> sets = setRepository.findAllByIsPublicTrue();
         Long me = userRepository.findByEmail(email).get().getId();
 
@@ -93,7 +96,22 @@ public class SetService {
 
             boolean isOwner = set.getUser().getId().equals(me);
 
-            return new PublicSetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, isOwner);
+            int newC = 0;
+            int learn = 0;
+            int due = 0;
+
+            if (type.equals("FLASHCARD")) {
+                SetStatsDto stat = flashcardSRSRepository.countFlashcardStats(set.getId());
+                newC  = Math.toIntExact(stat.newC());
+                learn = Math.toIntExact(stat.learn());
+                due   = Math.toIntExact(stat.due());
+            } else {
+                SetStatsDto stat = mcqSRSRepository.countMcqStats(set.getId());
+                newC  = Math.toIntExact(stat.newC());
+                learn = Math.toIntExact(stat.learn());
+                due   = Math.toIntExact(stat.due());
+            }
+            return new SetDto(set.getId(), set.getTitle(), set.isPublic(), count, type, isOwner, newC, learn, due);
         }).toList();
     }
 
@@ -101,8 +119,8 @@ public class SetService {
         Set set = setRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("MCQ Set not found: " + id));
 
-        int mcq = (set.getMcqs() == null) ? 0 : set.getMcqs().size();
-        int fl  = (set.getFlashcards() == null) ? 0 : set.getFlashcards().size();
+        int mcq = mcqRepository.countMcqsBySetId(set.getId());
+        int fl  = flashcardRepository.countFlashcardsBySetId(set.getId());
 
         // Only MCQ or FLASHCARD
         String type  = (mcq >= fl) ? "MCQ" : "FLASHCARD"; // tie→MCQ
@@ -113,13 +131,15 @@ public class SetService {
         int due = 0;
 
         if (type.equals("FLASHCARD")) {
-            newC = flashcardSRSRepository.findNewCardsBySetId(set.getId()).size();
-            learn = flashcardSRSRepository.findLearnCardsBySetId(set.getId()).size();
-            due = flashcardSRSRepository.findDueCardsBySetId(set.getId()).size();
+            SetStatsDto stat = flashcardSRSRepository.countFlashcardStats(set.getId());
+            newC  = Math.toIntExact(stat.newC());
+            learn = Math.toIntExact(stat.learn());
+            due   = Math.toIntExact(stat.due());
         } else {
-            newC = mcqSRSRepository.findNewCardsBySetId(set.getId()).size();
-            learn = mcqSRSRepository.findLearnCardsBySetId(set.getId()).size();
-            due = mcqSRSRepository.findDueCardsBySetId(set.getId()).size();
+            SetStatsDto stat = mcqSRSRepository.countMcqStats(set.getId());
+            newC  = Math.toIntExact(stat.newC());
+            learn = Math.toIntExact(stat.learn());
+            due   = Math.toIntExact(stat.due());
         }
 
         // map entity → DTO

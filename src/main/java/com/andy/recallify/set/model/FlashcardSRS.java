@@ -7,7 +7,11 @@ import java.sql.Time;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "flashcard_SRS")
+@Table(
+        name = "flashcard_SRS",
+        indexes = {
+                @Index(name = "idx_flashcard_id", columnList = "flashcard_id")
+        })
 public class FlashcardSRS {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +21,7 @@ public class FlashcardSRS {
     @JoinColumn(name = "flashcard_id", nullable = false)
     private Flashcard flashcard;
 
-    private int interval_hours;
+    private float interval_hours;
     private int repetitions;
     private float ef;   // Easiness Factor
     private Timestamp lastReviewedAt;
@@ -27,7 +31,7 @@ public class FlashcardSRS {
     @Column(updatable = false)
     private Timestamp createdAt;
 
-    public FlashcardSRS(Flashcard flashcard, int interval_hours, int repetitions, float ef, Timestamp lastReviewedAt, Timestamp nextReviewAt) {
+    public FlashcardSRS(Flashcard flashcard, float interval_hours, int repetitions, float ef, Timestamp lastReviewedAt, Timestamp nextReviewAt) {
         this.flashcard = flashcard;
         this.interval_hours = interval_hours;
         this.repetitions = repetitions;
@@ -52,11 +56,11 @@ public class FlashcardSRS {
         this.flashcard = flashcard;
     }
 
-    public int getInterval_hours() {
+    public float getInterval_hours() {
         return interval_hours;
     }
 
-    public void setInterval_hours(int interval_hours) {
+    public void setInterval_hours(float interval_hours) {
         this.interval_hours = interval_hours;
     }
 

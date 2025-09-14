@@ -2,6 +2,9 @@ package com.andy.recallify.set.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "mcqs")
 public class Mcq {
@@ -24,6 +27,9 @@ public class Mcq {
     private String explanation4;
 
     private int answer; // 1 to 4
+
+    @OneToMany(mappedBy = "mcq", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<McqSRS> mcqSRSs = new ArrayList<>();
 
     public long getId() {
         return id;
