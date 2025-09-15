@@ -2,6 +2,7 @@ package com.andy.recallify.generation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
@@ -11,10 +12,16 @@ import java.util.*;
 
 @Service
 public class GeminiService {
+    private final String API_KEY;
+    private final String API_URL;
 
-    private static final Dotenv dotenv = Dotenv.load();
-    private static final String API_KEY = dotenv.get("GEMINI_API_KEY");
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + API_KEY;
+    public GeminiService(@Value("${gemini.api-key}") String apiKey) {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new IllegalStateException("Missing GEMINI_API_KEY environment variable!");
+        }
+        this.API_KEY = apiKey;
+        this.API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + this.API_KEY;
+    }
 
     public String generateMcqs(String inputText, Long count) throws Exception {
         URL url = new URL(API_URL);

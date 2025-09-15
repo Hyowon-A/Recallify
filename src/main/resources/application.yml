@@ -21,6 +21,9 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
 
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+
   jpa:
     hibernate:
       ddl-auto: update
