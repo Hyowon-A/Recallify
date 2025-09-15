@@ -25,14 +25,18 @@ spring:
     api-key: ${GEMINI_API_KEY}
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    #database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   servlet:
     multipart:
       enabled: true
       max-file-size: 80MB
       max-request-size: 80MB
+
+server:
+  port: ${PORT:8080}
