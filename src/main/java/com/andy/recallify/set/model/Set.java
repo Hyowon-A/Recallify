@@ -32,6 +32,9 @@ public class Set {
     @OneToMany(mappedBy = "set", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Flashcard> flashcards = new ArrayList<>();
 
+    @OneToMany(mappedBy = "set", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<McqScore> scores;
+
     public List<Mcq> getMcqs() {
         return mcqs;
     }
