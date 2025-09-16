@@ -41,13 +41,13 @@ public class FlashcardService {
         this.flashcardSRSRepository = flashcardSRSRepository;
     }
 
-    public void generateAndSaveFlashcardsFromPdf(Long setId, MultipartFile file, Long count) throws Exception {
+    public void generateAndSaveFlashcardsFromPdf(Long setId, MultipartFile file, Long count, String level) throws Exception {
         Set set = setRepository.findById(setId)
                 .orElseThrow(() -> new IllegalArgumentException("Set not found"));
 
         String extractedText = pdfUploadService.extractTextFromPdf(file);
 
-        String rawJson = geminiService.generateFlashcards(extractedText, count);
+        String rawJson = geminiService.generateFlashcards(extractedText, count, level);
 
         List<Flashcard> flashcards = flashcardParser.parse(rawJson, set);  // attach set to each flashcard
 

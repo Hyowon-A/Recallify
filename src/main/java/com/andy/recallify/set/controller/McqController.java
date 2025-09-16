@@ -29,10 +29,11 @@ public class McqController {
     public ResponseEntity<?> generateMcqsFromPdf(
             @RequestParam("setId") Long id,
             @RequestParam("count") Long count,
+            @RequestParam("level") String level,
             @RequestPart("file") MultipartFile file
     ) {
         try {
-            mcqService.generateAndSaveMcqsFromPdf(id, file, count);
+            mcqService.generateAndSaveMcqsFromPdf(id, file, count, level);
             return ResponseEntity.ok(Map.of("setId", id));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to generate MCQs: " + e.getMessage());

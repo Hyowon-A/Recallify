@@ -30,10 +30,11 @@ public class FlashcardController {
     public ResponseEntity<?> generateFlashcardsFromPdf(
             @RequestParam("setId") Long id,
             @RequestParam("count") Long count,
+            @RequestParam("level") String level,
             @RequestPart("file") MultipartFile file
     ) {
         try {
-            flashcardService.generateAndSaveFlashcardsFromPdf(id, file, count);
+            flashcardService.generateAndSaveFlashcardsFromPdf(id, file, count, level);
             return ResponseEntity.ok(Map.of("setId", id));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to generate flashcards: " + e.getMessage());

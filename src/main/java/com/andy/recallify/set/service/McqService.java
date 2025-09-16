@@ -44,13 +44,13 @@ public class McqService {
         this.mcqSRSRepository = mcqSRSRepository;
     }
 
-    public void generateAndSaveMcqsFromPdf(Long mcqSetId, MultipartFile file, Long count) throws Exception {
+    public void generateAndSaveMcqsFromPdf(Long mcqSetId, MultipartFile file, Long count, String level) throws Exception {
         Set set = setRepository.findById(mcqSetId)
                 .orElseThrow(() -> new IllegalArgumentException("Set not found"));
 
         String extractedText = pdfUploadService.extractTextFromPdf(file);
 
-        String rawJson = geminiService.generateMcqs(extractedText, count);
+        String rawJson = geminiService.generateMcqs(extractedText, count, level);
 
         List<Mcq> mcqs = mcqParser.parse(rawJson, set);  // attach set to each mcq
 

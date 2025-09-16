@@ -20,12 +20,13 @@ public class GeminiController {
     public ResponseEntity<?> generateMcqs(@RequestBody Map<String, String> request) {
         String inputText = request.get("text");
         Long count = Long.parseLong(request.get("count"));
+        String level = request.get("level");
         if (inputText == null || inputText.isBlank()) {
             return ResponseEntity.badRequest().body("Input text is required");
         }
 
         try {
-            String jsonMcqs = geminiService.generateMcqs(inputText, count);
+            String jsonMcqs = geminiService.generateMcqs(inputText, count, level);
             return ResponseEntity.ok(Map.of("mcqs", jsonMcqs));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to generate MCQs: " + e.getMessage());
@@ -36,12 +37,13 @@ public class GeminiController {
     public ResponseEntity<?> generateFlashcards(@RequestBody Map<String, String> request) {
         String inputText = request.get("text");
         Long count = Long.parseLong(request.get("count"));
+        String level = request.get("level");
         if (inputText == null || inputText.isBlank()) {
             return ResponseEntity.badRequest().body("Input text is required");
         }
 
         try {
-            String jsonFlashcards = geminiService.generateFlashcards(inputText, count);
+            String jsonFlashcards = geminiService.generateFlashcards(inputText, count, level);
             return ResponseEntity.ok(Map.of("mcqs", jsonFlashcards));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Failed to generate flashcards: " + e.getMessage());

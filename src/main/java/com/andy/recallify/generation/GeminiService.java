@@ -23,7 +23,7 @@ public class GeminiService {
         this.API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + this.API_KEY;
     }
 
-    public String generateMcqs(String inputText, Long count) throws Exception {
+    public String generateMcqs(String inputText, Long count, String level) throws Exception {
         URL url = new URL(API_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -37,35 +37,38 @@ public class GeminiService {
                 
                 Your task is to create multiple-choice questions (MCQs) based on the following lecture content:
                 
-                %s
-                
-                Generate %d high-quality MCQs.
-                
-                Each question must follow this exact JSON format:
-                
-                [
-                  {
-                    "question": "What is ...?",
-                    "option1": "Option A",
-                    "explanation1": "Because ...",
-                    "option2": "Option B",
-                    "explanation2": "Because ...",
-                    "option3": "Option C",
-                    "explanation3": "Because ...",
-                    "option4": "Option D",
-                    "explanation4": "Because ...",
-                    "answer": 2
-                  }
-                ]
-                
-                Requirements:
-                - Only ONE correct answer per question.
-                - Explanations must clearly justify why each option is right or wrong.
-                - "answer" field must be an integer (1–4) that matches the correct option.
-                
-                Do not add anything outside the JSON.
-                Output only the JSON array.
-                """.formatted(inputText, count);
+                   %s
+    
+                   Generate exactly %d high-quality MCQs at the %s difficulty level.
+    
+                   Each question must follow this exact JSON format:
+    
+                   [
+                     {
+                       "question": "What is ...?",
+                       "option1": "Option A",
+                       "explanation1": "Because ...",
+                       "option2": "Option B",
+                       "explanation2": "Because ...",
+                       "option3": "Option C",
+                       "explanation3": "Because ...",
+                       "option4": "Option D",
+                       "explanation4": "Because ...",
+                       "answer": 2
+                     }
+                   ]
+    
+                   Strict requirements:
+                   - The number of questions must be exactly %d.
+                   - The language of the questions and explanations must match the language of the lecture content.
+                   - Only ONE correct answer per question.
+                   - The "answer" field must be an integer (1–4) matching the correct option.
+                   - Explanations must clearly justify why each option is correct or incorrect.
+                   - Questions should be well-structured, non-trivial, and reflect the specified difficulty.
+    
+                   Do not include anything outside the JSON array.
+                   Output only the JSON array.
+                """.formatted(inputText, count, level, count);
 
         // Gemini HTTP body
         Map<String, Object> requestBody = Map.of(
@@ -124,7 +127,7 @@ public class GeminiService {
 
     }
 
-    public String generateFlashcards(String inputText, Long count) throws Exception {
+    public String generateFlashcards(String inputText, Long count, String level) throws Exception {
         URL url = new URL(API_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -139,7 +142,7 @@ public class GeminiService {
                 Create flashcards from this lecture content:
                 %s
                 
-                Generate exactly %d flashcards.
+                Generate exactly %d flashcards at the %s difficulty level.
                 
                 Output (STRICT — JSON array only):
                 [
@@ -171,7 +174,7 @@ public class GeminiService {
                 
                 IMPORTANT:
                 - Output ONLY the JSON array—no headings, notes, or extra text.
-                """.formatted(inputText, count, count);
+                """.formatted(inputText, count, level, count);
 
         // Gemini HTTP body
         Map<String, Object> requestBody = Map.of(
