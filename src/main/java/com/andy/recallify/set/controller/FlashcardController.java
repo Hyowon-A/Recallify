@@ -19,7 +19,7 @@ public class FlashcardController {
     private final FlashcardService flashcardService;
 
     @Autowired
-    public FlashcardController(FlashcardService flashcardService, FlashcardService flashcardService1) {
+    public FlashcardController(FlashcardService flashcardService) {
         this.flashcardService = flashcardService;
     }
 

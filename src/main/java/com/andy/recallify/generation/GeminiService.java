@@ -20,7 +20,7 @@ public class GeminiService {
             throw new IllegalStateException("Missing GEMINI_API_KEY environment variable!");
         }
         this.API_KEY = apiKey;
-        this.API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + this.API_KEY;
+        this.API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + this.API_KEY;
     }
 
     public String generateMcqs(String inputText, Long count, String level) throws Exception {
@@ -30,6 +30,7 @@ public class GeminiService {
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
+        conn.setRequestProperty("x-goog-api-key", this.API_KEY);
 
         // Prompt
         String prompt = """
@@ -195,7 +196,7 @@ public class GeminiService {
 
         // Read response
         if (conn.getResponseCode() != 200) {
-            throw new RuntimeException("Failed to generate flashcardss: " + conn.getResponseCode() + " - " + conn.getResponseMessage());
+            throw new RuntimeException("Failed to generate flashcards: " + conn.getResponseCode() + " - " + conn.getResponseMessage());
         }
 
         String response = new Scanner(conn.getInputStream()).useDelimiter("\\A").next();
