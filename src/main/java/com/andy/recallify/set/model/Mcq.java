@@ -15,15 +15,31 @@ public class Mcq {
     @JoinColumn(name = "set_id", nullable = false)
     private Set set;
 
+    @Column(columnDefinition = "TEXT")
     private String question;
 
+    @Column(columnDefinition = "TEXT")
     private String option1;
+
+    @Column(columnDefinition = "TEXT")
     private String explanation1;
+
+    @Column(columnDefinition = "TEXT")
     private String option2;
+
+    @Column(columnDefinition = "TEXT")
     private String explanation2;
+
+    @Column(columnDefinition = "TEXT")
     private String option3;
+
+    @Column(columnDefinition = "TEXT")
     private String explanation3;
+
+    @Column(columnDefinition = "TEXT")
     private String option4;
+
+    @Column(columnDefinition = "TEXT")
     private String explanation4;
 
     private int answer; // 1 to 4
