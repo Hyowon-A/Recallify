@@ -11,6 +11,7 @@ import java.util.Map;
 public interface McqRepository extends JpaRepository<Mcq, Long> {
 
     List<Mcq> findBySetId(Long setId);
+    boolean existsByIdAndSetId(Long id, Long setId);
 
     @Query("SELECT COUNT(m) FROM Mcq m WHERE m.set.id = :setId")
     int countMcqsBySetId(@Param("setId") Long setId);

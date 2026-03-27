@@ -12,6 +12,7 @@ import java.util.Map;
 public interface FlashcardRepository extends JpaRepository<Flashcard, Long> {
 
     List<Flashcard> findBySetId(Long setId);
+    boolean existsByIdAndSetId(Long id, Long setId);
 
     @Query("SELECT COUNT(f) FROM Flashcard f WHERE f.set.id = :setId")
     int countFlashcardsBySetId(@Param("setId") Long setId);

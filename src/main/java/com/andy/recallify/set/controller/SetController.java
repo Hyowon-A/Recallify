@@ -82,9 +82,16 @@ public class SetController {
     }
 
     @DeleteMapping("/delete/{setId}")
-    public ResponseEntity<?> deleteSet(@PathVariable Long setId) {
+    public ResponseEntity<?> deleteSet(
+            @PathVariable Long setId,
+            @RequestHeader("Authorization") String authHeader
+    ) {
         try {
-            setService.deleteSetById(setId);
+            String token = authHeader.replace("Bearer ", "");
+            String email = jwtUtil.extractEmail(token);
+            setService.deleteSetById(setId, email);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
@@ -100,8 +107,10 @@ public class SetController {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            setService.editSet(editSetRequest);
+            setService.editSet(editSetRequest, email);
             return ResponseEntity.ok().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Error: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }

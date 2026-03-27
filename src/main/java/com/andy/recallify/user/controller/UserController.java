@@ -129,7 +129,10 @@ public class UserController {
     public ResponseEntity<?> resetPassword(
             @RequestBody ResetPasswordRequest resetPasswordRequest) {
         try {
-            userService.resetPassword(resetPasswordRequest.email(), resetPasswordRequest.newPassword());
+            userService.resetPassword(
+                    resetPasswordRequest.email(),
+                    resetPasswordRequest.code(),
+                    resetPasswordRequest.newPassword());
 
             return ResponseEntity.ok().build();
         } catch (Exception e) {

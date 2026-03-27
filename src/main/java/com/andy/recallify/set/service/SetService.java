@@ -141,14 +141,18 @@ public class SetService {
         return toSetDto(set, true, mcq, fl, mcqStat, flStat);
     }
 
-    public void deleteSetById(Long id) {
-        setRepository.deleteById(id);
+    public void deleteSetById(Long id, String email) {
+        Set set = setRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Set not found"));
+        assertSetOwner(set, email);
+        setRepository.delete(set);
     }
 
     @Transactional
-    public void editSet(EditSetRequest req) {
+    public void editSet(EditSetRequest req, String email) {
         Set set = setRepository.findById(req.setId())
                 .orElseThrow(() -> new IllegalArgumentException("Set not found"));
+        assertSetOwner(set, email);
 
         // Conditionally update only if value is provided
         if (req.title() != null && !req.title().trim().isEmpty()) {
@@ -160,11 +164,20 @@ public class SetService {
         }
 
         if (req.deletedIds() != null) {
+            if (!"MCQ".equals(req.type()) && !"FLASHCARD".equals(req.type())) {
+                throw new IllegalArgumentException("Invalid set content type");
+            }
             for (Long qid : req.deletedIds()) {
-                if (req.type().equals("MCQ")) {
+                if ("MCQ".equals(req.type())) {
+                    if (!mcqRepository.existsByIdAndSetId(qid, set.getId())) {
+                        throw new SecurityException("MCQ does not belong to this set");
+                    }
                     mcqRepository.deleteById(qid);
                 }
-                if (req.type().equals("FLASHCARD")) {
+                if ("FLASHCARD".equals(req.type())) {
+                    if (!flashcardRepository.existsByIdAndSetId(qid, set.getId())) {
+                        throw new SecurityException("Flashcard does not belong to this set");
+                    }
                     flashcardRepository.deleteById(qid);
                 }
             }
@@ -246,6 +259,12 @@ public class SetService {
         int due = stats != null ? Math.toIntExact(stats.due()) : 0;
 
         return new SetDto(id, set.getTitle(), set.isPublic(), count, type, isOwner, newC, learn, due);
+    }
+
+    private void assertSetOwner(Set set, String email) {
+        if (email == null || !set.getUser().getEmail().equals(email)) {
+            throw new SecurityException("Forbidden");
+        }
     }
 
 }

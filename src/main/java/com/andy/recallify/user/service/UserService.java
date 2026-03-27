@@ -153,16 +153,32 @@ public class UserService {
         if (resetCode.isUsed() || resetCode.getExpiresAt().isBefore(Instant.now())) {
             throw new IllegalStateException("Invalid or expired code");
         }
-
-        // mark as used (single use)
-        resetCode.setUsed(true);
     }
     @Transactional
-    public void resetPassword(String email, String newPassword) {
-        User user = userRepository.findByEmail(email)
+    public void resetPassword(String email, String code, String newPassword) {
+        String normalizedEmail = email == null ? "" : email.trim().toLowerCase();
+        String normalizedCode = code == null ? "" : code.trim();
+
+        if (!normalizedCode.matches("\\d{6}")) {
+            throw new IllegalArgumentException("Invalid code format");
+        }
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+
+        User user = userRepository.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        PasswordResetCode resetCode = passwordResetCodeRepository.findByUserAndCode(user, normalizedCode)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired code"));
+
+        if (resetCode.isUsed() || resetCode.getExpiresAt().isBefore(Instant.now())) {
+            throw new IllegalStateException("Invalid or expired code");
+        }
+
         user.setPassword(hashPassword(newPassword.trim()));
+        resetCode.setUsed(true);
     }
 
     @Transactional

@@ -35,8 +35,13 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/user/**", "/api/flashcard/**", "/api/mcq/**", "/api/mcqSet/**", "/api/upload/**" ).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/mcqSet/get/**").authenticated()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/user/register",
+                                "/api/user/login",
+                                "/api/user/sendResetCode",
+                                "/api/user/verifyResetCode",
+                                "/api/user/refresh").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/user/resetPassword").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
@@ -68,5 +73,4 @@ public class SecurityConfig {
         };
     }
 }
-
 
