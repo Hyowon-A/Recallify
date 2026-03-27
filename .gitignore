@@ -33,3 +33,5 @@ build/
 .vscode/
 
 src/main/resources/.env
+benchmarks/results/
+benchmarks/sample.pdf

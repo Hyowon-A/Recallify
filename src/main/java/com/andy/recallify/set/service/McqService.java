@@ -3,7 +3,6 @@ package com.andy.recallify.set.service;
 import com.andy.recallify.generation.GeminiService;
 import com.andy.recallify.generation.PdfUploadService;
 import com.andy.recallify.set.dto.UpdateSRSRequest;
-import com.andy.recallify.set.model.FlashcardSRS;
 import com.andy.recallify.set.model.Mcq;
 import com.andy.recallify.set.model.McqSRS;
 import com.andy.recallify.set.model.Set;
@@ -13,10 +12,8 @@ import com.andy.recallify.set.dto.OptionDto;
 import com.andy.recallify.set.repository.McqRepository;
 import com.andy.recallify.set.repository.McqSRSRepository;
 import com.andy.recallify.set.repository.SetRepository;
-import com.andy.recallify.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

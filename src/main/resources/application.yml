@@ -61,3 +61,9 @@ management:
 logging:
   level:
     org.springframework.web: DEBUG
+
+generation:
+  mcq:
+    batch-size: 4
+    max-batches: 8
+    max-questions: 30
