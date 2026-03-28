@@ -1,0 +1,64 @@
+package com.andy.recallify.features.set.controller;
+
+import com.andy.recallify.features.set.dto.UpdateSRSRequest;
+import com.andy.recallify.features.set.service.McqService;
+import com.andy.recallify.features.set.dto.McqDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping(path="api/mcq")
+public class McqController {
+    private final McqService mcqService;
+
+    @Autowired
+    public McqController(McqService mcqService) {
+        this.mcqService = mcqService;
+    }
+
+    @PostMapping(
+            value = "/generate-from-pdf",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<?> generateMcqsFromPdf(
+            @RequestParam("setId") Long id,
+            @RequestParam("count") Long count,
+            @RequestParam("level") String level,
+            @RequestPart("file") MultipartFile file
+    ) {
+        try {
+            mcqService.generateAndSaveMcqsFromPdf(id, file, count, level);
+            return ResponseEntity.ok(Map.of("setId", id));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to generate MCQs: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/get/{setId}")
+    public ResponseEntity<?> getMcqs(@PathVariable Long setId) {
+        try {
+            List<McqDto> mcqs = mcqService.getMcqs(setId);
+            return ResponseEntity.ok(mcqs);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to get MCQs: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/SRS/update/{setId}")
+    public ResponseEntity<?> updateMcqSRS(@RequestBody UpdateSRSRequest updateSRSRequest, @PathVariable Long setId) {
+        try {
+            mcqService.updateMcqSRS(setId, updateSRSRequest.grade(), updateSRSRequest.interval_hours(),
+                    updateSRSRequest.ef(), updateSRSRequest.repetitions());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return  ResponseEntity.internalServerError().body("Failed to update flashcards: " + e.getMessage());
+        }
+    }
+
+}
