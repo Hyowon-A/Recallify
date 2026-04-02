@@ -21,7 +21,7 @@ public class Set {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "folder_id")
+    @JoinColumn(name = "folder_id", nullable = false)
     private Folder folder;
 
     @Column(name = "title", nullable = false)

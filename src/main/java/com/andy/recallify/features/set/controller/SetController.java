@@ -1,7 +1,8 @@
 package com.andy.recallify.features.set.controller;
 
+import com.andy.recallify.features.set.dto.CopySetRequest;
+import com.andy.recallify.features.set.dto.CreateSetRequest;
 import com.andy.recallify.features.set.dto.EditSetRequest;
-import com.andy.recallify.features.set.dto.PublicSetDto;
 import com.andy.recallify.features.set.dto.SetDto;
 import com.andy.recallify.features.set.service.SetService;
 import com.andy.recallify.shared.security.JwtUtil;
@@ -29,14 +30,14 @@ public class SetController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createSet(
-            @RequestBody SetDto setDto,
+            @RequestBody CreateSetRequest request,
             @RequestHeader("Authorization") String authHeader
     ) {
         try {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
 
-            Long setId = setService.createSet(setDto.title(), setDto.isPublic(), email);
+            Long setId = setService.createSet(request.title(), request.isPublic(), request.folderId(), email);
             return ResponseEntity.ok().body(Map.of(
                     "id", setId
             ));
@@ -46,7 +47,7 @@ public class SetController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> getMyMcqSets(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> getMySets(@RequestHeader("Authorization") String authHeader) {
         try {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
@@ -119,12 +120,13 @@ public class SetController {
     @PostMapping("/copy/{sourceSetId}")
     public ResponseEntity<?> copySet(
             @PathVariable Long sourceSetId,
+            @RequestBody CopySetRequest request,
             @RequestHeader("Authorization") String authHeader
     ) {
         try {
             String token = authHeader.replace("Bearer ", "");
             String email = jwtUtil.extractEmail(token);
-            Long newSetId = setService.copySet(sourceSetId, email);
+            Long newSetId = setService.copySet(sourceSetId, request.folderId(), email);
             return ResponseEntity.ok(Map.of("id", newSetId));
         } catch  (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());

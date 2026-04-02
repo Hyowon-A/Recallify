@@ -16,4 +16,6 @@ public interface SetRepository extends JpaRepository<Set, Long> {
     boolean existsByTitleAndUser(String title, User user);
 
     List<Set> findAllByUser(User user);
+
+    List<Set> findAllByFolderIdAndUser(Long folderId, User user);
 }
