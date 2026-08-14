@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+dist/
+target/
+
+.env
+*.env
+
+.idea/
+.vscode/
+*.iml
+
+HELP.md
+benchmarks/results/
+benchmarks/sample.pdf
