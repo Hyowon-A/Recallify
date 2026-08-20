@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import SectionHeader from "../components/SectionHeader";
 import { fetchWithAuth } from "../auth";
 import { API_BASE_URL } from "../config";
+import { errorMessage, isAbortError } from "../error";
 
 type Folder = {
   id: string;
@@ -53,9 +54,9 @@ export default function PublicLibrary() {
         const all: ApiFolder[] = await res.json();
         setFolders(all.map(mapFolder));
         setIsLoading(false);
-      } catch (e: any) {
-        if (e.name !== "AbortError") {
-          setError(e.message || "Failed to load public folders");
+      } catch (e: unknown) {
+        if (!isAbortError(e)) {
+          setError(errorMessage(e, "Failed to load public folders"));
           setFolders([]);
           setIsLoading(false);
         }

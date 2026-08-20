@@ -7,6 +7,7 @@ import SectionHeader from "../components/SectionHeader";
 import { fetchWithAuth } from "../auth";
 import { API_BASE_URL } from "../config";
 import { useTranslation } from "react-i18next";
+import { errorMessage, isAbortError } from "../error";
 
 type FolderState = {
   id: string;
@@ -161,9 +162,9 @@ export default function Folder() {
         setMcq(mcqs);
         setFlash(flashes);
         setIsLoading(false);
-      } catch (e: any) {
-        if (e.name !== "AbortError")
-          setError(e.message || "Failed to load decks");
+      } catch (e: unknown) {
+        if (!isAbortError(e))
+          setError(errorMessage(e, "Failed to load decks"));
         setMcq([]);
         setFlash([]);
         setIsLoading(false);
@@ -214,8 +215,8 @@ export default function Folder() {
       if (!res.ok) throw new Error(await res.text());
 
       nav("/dashboard");
-    } catch (e: any) {
-      setError(e.message || "Failed to delete folder");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "Failed to delete folder"));
     } finally {
       setIsDeleting(false);
     }

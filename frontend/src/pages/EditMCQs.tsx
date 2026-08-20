@@ -33,7 +33,13 @@ export default function EditMCQs() {
     setSaving(true);
 
     try {
-      const body: any = {
+      const body: {
+        setId: string;
+        type: string;
+        title?: string;
+        isPublic?: boolean;
+        deletedIds?: string[];
+      } = {
         setId: state.meta.id,
         type: state.meta.type,
       }
@@ -53,8 +59,8 @@ export default function EditMCQs() {
         body: JSON.stringify(body),        
       });
       nav(`/sets/${state.meta.id}`);
-    } catch (e) {
-
+    } catch {
+      // stay in edit mode; saving resets below
     } finally {
       setSaving(false);
     }
@@ -194,4 +200,3 @@ function QuestionsPreview({
     </div>
   );
 }
-

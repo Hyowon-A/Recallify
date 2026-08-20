@@ -12,9 +12,8 @@ export default function FinalResultModal({
   mode?: "MCQ" | "FLASHCARD";
 }) {
   const navigate = useNavigate();
-  if (!open) return null;
-
   const { setId } = useParams<{ setId: string }>();
+  if (!open) return null;
 
   // Calculate score % only if MCQ mode
   const scorePercent = total > 0 ? Math.round((correct / total) * 100) : 0;

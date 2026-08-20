@@ -47,7 +47,7 @@ function buildHeaders(init: RequestInit, token: string | null): Headers {
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
   // Only set JSON content-type if caller hasn't and body isn't FormData/URLSearchParams
-  const body = init.body as any;
+  const body = init.body;
   const hasCT = headers.has("Content-Type");
   const isForm = typeof FormData !== "undefined" && body instanceof FormData;
   const isUrlEnc = typeof URLSearchParams !== "undefined" && body instanceof URLSearchParams;

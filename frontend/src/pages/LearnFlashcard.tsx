@@ -4,6 +4,7 @@ import FinalResultModal from "../components/FinalResultModal";
 import { fetchWithAuth } from "../auth";
 import { API_BASE_URL } from "../config";
 import { useTranslation } from "react-i18next";
+import { errorMessage, isAbortError } from "../error";
 
 type Flashcard = { id: string; front: string; back: string; interval_hours: number; ef: number; repetitions: number; srsType: string};
 type ApiFlashcard = { id?: string | number; front?: string; back?: string; interval_hours: number; ef: number; repetitions: number; srsType: string};
@@ -122,8 +123,8 @@ export default function LearnFlashcard() {
           : (data.cards ?? []).map(mapCard);
         setCards(filterLearnAndDue(arr));
         setDeckTitle(data.title ?? "Flashcard Deck");
-      } catch (e: any) {
-        if (e.name !== "AbortError") setErr(e.message || "Network error");
+      } catch (e: unknown) {
+        if (!isAbortError(e)) setErr(errorMessage(e, "Network error"));
       } finally {
         setLoading(false);
       }

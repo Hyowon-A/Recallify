@@ -71,7 +71,12 @@ export default function ProfileModal({
   async function handleSubmit() {
     let valid = true;
 
-    const body: any = { };
+    const body: {
+      name?: string;
+      email?: string;
+      currentPassword?: string;
+      newPassword?: string;
+    } = {};
   
     if (name.trim() === "") {
       setNameError("Please enter your name.");

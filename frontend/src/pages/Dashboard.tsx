@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import SectionHeader from "../components/SectionHeader";
 import { fetchWithAuth } from "../auth";
 import { API_BASE_URL } from "../config";
+import { errorMessage, isAbortError } from "../error";
 
 type Folder = {
   id: string;
@@ -62,9 +63,9 @@ export default function Dashboard() {
       const all: ApiFolder[] = await res.json();
       setFolders(all.map(mapFolder));
       setIsLoading(false);
-    } catch (e: any) {
-      if (e.name !== "AbortError") {
-        setError(e.message || "Failed to load folders");
+    } catch (e: unknown) {
+      if (!isAbortError(e)) {
+        setError(errorMessage(e, "Failed to load folders"));
         if (!preserveExisting) {
           setFolders([]);
         }
@@ -103,8 +104,8 @@ export default function Dashboard() {
       setFolderIsPublic(false);
       setIsCreateOpen(false);
       await fetchFolders(undefined, { preserveExisting: true });
-    } catch (e: any) {
-      setCreateError(e.message || "Failed to create folder");
+    } catch (e: unknown) {
+      setCreateError(errorMessage(e, "Failed to create folder"));
     } finally {
       setIsCreating(false);
     }

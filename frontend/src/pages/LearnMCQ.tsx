@@ -4,6 +4,7 @@ import FinalResultModal from "../components/FinalResultModal";
 import { fetchWithAuth } from "../auth";
 import { API_BASE_URL } from "../config";
 import { useTranslation } from "react-i18next";
+import { errorMessage, isAbortError } from "../error";
 
 type Option = { id: string; option: string; correct?: boolean; explanation?: string,};
 type Question = { id: string; question: string; options: Option[]; explanation?: string; interval_hours: number; ef: number; repetitions: number; srsType: string};
@@ -147,8 +148,8 @@ export default function LearnMCQ() {
         setDeckTitle(data.title ?? "MCQ Deck");
         setQuestions(filterLearnAndDue(questions));
 
-      } catch (e: any) {
-        if (e.name !== "AbortError") setErr(e.message || "Network error");
+      } catch (e: unknown) {
+        if (!isAbortError(e)) setErr(errorMessage(e, "Network error"));
       } finally {
         setLoading(false);
       }

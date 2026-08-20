@@ -21,9 +21,6 @@ spring:
         cachePrepStmts: false
         reWriteBatchedInserts: true
 
-  gemini:
-    api-key: ${GEMINI_API_KEY}
-
   jpa:
     open-in-view: false
     hibernate:
@@ -67,3 +64,6 @@ generation:
     batch-size: 4
     max-batches: 8
     max-questions: 30
+
+gemini:
+  api-key: ${GEMINI_API_KEY}

@@ -142,7 +142,7 @@ export default function AuthModal({
       if (data?.name) localStorage.setItem("name", data.name);
 
       onSuccess({ email: data.email, name: data.name });
-    } catch (err) {
+    } catch {
       setFormError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -184,7 +184,7 @@ export default function AuthModal({
       }
 
       setForgotStatus("sent");
-    } catch (err) {
+    } catch {
       setForgotError("Something went wrong. Please try again.");
     } finally {
       setForgotLoading(false);

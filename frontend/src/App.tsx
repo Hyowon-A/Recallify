@@ -92,6 +92,7 @@ export default function App() {
     try {
       await fetchWithAuth(`${API_BASE_URL}/user/logout`, { method: "POST" });
     } catch {
+      // logout is best-effort; local state is cleared below
     } finally {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");

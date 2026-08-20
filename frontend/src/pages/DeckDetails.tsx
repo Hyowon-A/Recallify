@@ -6,6 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { fetchWithAuth } from "../auth";
 import { API_BASE_URL } from "../config";
 import { useTranslation} from "react-i18next";
+import { errorMessage, isAbortError } from "../error";
 
 type DeckType = "MCQ" | "FLASHCARD";
 
@@ -89,8 +90,8 @@ export default function DeckDetails() {
         method: "DELETE",
       });
       nav("/dashboard");
-    } catch (e) {
-      
+    } catch {
+      // delete errors are surfaced by staying on this page
     } finally {
       setDeleting(false);
     }
@@ -109,8 +110,8 @@ export default function DeckDetails() {
         if (!res.ok) throw new Error(await res.text());
         const data: ApiDeckMeta = await res.json();
         setMeta(mapMeta(data));
-      } catch (e: any) {
-        if (e.name !== "AbortError") setErr(e.message || "Failed to load deck info");
+      } catch (e: unknown) {
+        if (!isAbortError(e)) setErr(errorMessage(e, "Failed to load deck info"));
       }
     }
     loadMetaIfNeeded();
@@ -167,8 +168,8 @@ export default function DeckDetails() {
           setQuestions(null);
           setLoading(false);
         }
-      } catch (e: any) {
-        if (e.name !== "AbortError") setErr(e.message || "Failed to load content");
+      } catch (e: unknown) {
+        if (!isAbortError(e)) setErr(errorMessage(e, "Failed to load content"));
       }
     }
 

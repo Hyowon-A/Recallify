@@ -4,6 +4,12 @@ Use this before and after optimization so results are comparable.
 
 ## 1) Start backend normally
 
+From `backend/`:
+
+```bash
+./run-backend.sh
+```
+
 Run the same environment for both baseline and post-change runs:
 
 - same machine
